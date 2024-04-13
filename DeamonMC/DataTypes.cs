@@ -17,6 +17,15 @@ namespace DeamonMC
             return a;
         }
 
+        public static short ReadShort(byte[] buffer)
+        {
+            short value = (short)((Server.byteStream[Server.readOffset] << 8) | Server.byteStream[Server.readOffset + 1]);
+
+            Server.readOffset += 2;
+
+            return value;
+        }
+
         public static void WriteShort(ushort value)
         {
             Server.byteStream[Server.writeOffset] = (byte)(value >> 8);
@@ -104,12 +113,13 @@ namespace DeamonMC
             Server.writeOffset += strBytes.Length;
         }
 
-        public static int ReadMTU(byte[] buffer)
+        public static int ReadMTU(byte[] buffer, int lenght)
         {
-            int paddingSize = buffer[Server.readOffset];
-            Server.readOffset++;
+            int paddingSize = lenght - Server.readOffset;
 
-            int estimatedMTU = paddingSize + 46;
+            int estimatedMTU = Server.readOffset + paddingSize + 28;
+
+            Server.readOffset = (paddingSize + Server.readOffset);
 
             return estimatedMTU;
         }
@@ -137,6 +147,42 @@ namespace DeamonMC
             }
 
             return ipAddressInfo;
+        }
+
+        public static void WriteAddress()
+        {
+            byte[] ipAddress = new byte[] { 127, 0, 0, 1 };
+            ushort port = 19132;
+
+            Server.byteStream[Server.writeOffset] = 4;
+            Server.writeOffset++;
+
+            Array.Copy(ipAddress, 0, Server.byteStream, Server.writeOffset, ipAddress.Length);
+            Server.writeOffset += ipAddress.Length;
+
+            byte[] portBytes = BitConverter.GetBytes(port);
+            Array.Copy(portBytes, 0, Server.byteStream, Server.writeOffset, portBytes.Length);
+            Server.writeOffset += portBytes.Length;
+        }
+
+        public static uint ReadUInt24LE(byte[] buffer)
+        {
+            uint uint24leValue = (uint)(buffer[Server.readOffset] | (buffer[Server.readOffset + 1] << 8) | (buffer[Server.readOffset + 2] << 16));
+            Server.readOffset += 3;
+            return uint24leValue;
+        }
+
+        public static void HexDump(byte[] buffer, int lenght)
+        {
+            for (int i = 0; i < lenght; i++)
+            {
+                Console.Write(buffer[i].ToString("X2") + " ");
+                if ((i + 1) % 16 == 0)
+                {
+                    Console.WriteLine();
+                }
+            }
+            Console.WriteLine();
         }
     }
 }
