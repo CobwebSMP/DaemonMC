@@ -1,6 +1,7 @@
 ﻿using System.Net.Sockets;
 using System.Net;
 using System.Reflection.PortableExecutable;
+using System;
 
 namespace DeamonMC
 {
@@ -9,6 +10,7 @@ namespace DeamonMC
         public static int readOffset = 0;
         public static int writeOffset = 0;
         public static byte[] byteStream = new byte[1024];
+        public static List<byte[]> packetBuffers = new List<byte[]>();
 
         public static Socket sock { get; set; }
         public static IPEndPoint clientEp { get; set; }
@@ -25,6 +27,7 @@ namespace DeamonMC
 
                 byte[] buffer = new byte[8192];
                 int recv = sock.ReceiveFrom(buffer, ref ep);
+                readOffset = 0;
 
                 clientEp = (IPEndPoint)ep;
                 var clientIp = clientEp.Address.ToString();
@@ -101,24 +104,27 @@ namespace DeamonMC
                 {
                     if (pkid >= 128 && pkid <= 141) // Frame Set Packet
                     {
-                        readOffset = 0;
                         uint sequence = DataTypes.ReadUInt24LE(buffer);
                         uint reliableIndex = 0;
                         uint sequenceIndex = 0;
                         uint orderIndex = 0;
                         byte orderChannel = 0;
 
+                        int compSize = 0;
+                        short compId = 0;
+                        int compIndex = 0;
+
                         while (readOffset < recv)
                         {
                             var flags = DataTypes.ReadByte(buffer);
                             var pLength = DataTypes.ReadShort(buffer);
 
-                            byte reliabilityType = (byte)(flags & 0b00000111);
-                            bool isFragmented = ((flags >> 3) & 0b00000001) == 1;
+                            byte reliabilityType = (byte)((flags & 0b011100000) >> 5);
+                            bool isFragmented = (flags & 0b00010000) > 0;
 
                             if (reliabilityType == 0)
                             {
-
+                                //nothing
                             }
                             else if (reliabilityType == 1)
                             {
@@ -127,21 +133,24 @@ namespace DeamonMC
                             }
                             else if (reliabilityType == 2)
                             {
-
+                                reliableIndex = DataTypes.ReadUInt24LE(buffer);
                             }
                             else if (reliabilityType == 3)
                             {
                                 reliableIndex = DataTypes.ReadUInt24LE(buffer);
+                                sequenceIndex = DataTypes.ReadUInt24LE(buffer);
                                 orderIndex = DataTypes.ReadUInt24LE(buffer);
                                 orderChannel = DataTypes.ReadByte(buffer);
                             }
                             else if (reliabilityType == 4)
                             {
-
+                                reliableIndex = DataTypes.ReadUInt24LE(buffer);
+                                orderIndex = DataTypes.ReadUInt24LE(buffer);
+                                orderChannel = DataTypes.ReadByte(buffer);
                             }
                             else if (reliabilityType == 5)
                             {
-
+                                //nothing
                             }
                             else if (reliabilityType == 6)
                             {
@@ -159,9 +168,14 @@ namespace DeamonMC
                             Array.Copy(buffer, readOffset, body, 0, lengthInBytes);
                             readOffset += lengthInBytes;
 
-
-                            Console.WriteLine($"[Frame Set Packet] seq: {sequence} f: {flags} pL: {pLength} rtype: {reliabilityType} frag: {isFragmented} relIndx: {reliableIndex} seqIndxL: {sequenceIndex} ordIndx: {orderIndex} ordCh: {orderChannel}");
-                            DataTypes.HexDump(body, body.Length);
+                            if (isFragmented)
+                            {
+                                compSize = DataTypes.ReadInt(buffer);
+                                compId = DataTypes.ReadShort(buffer);
+                                compIndex = DataTypes.ReadInt(buffer);
+                            }
+                            packetBuffers.Add(body);
+                            //Console.WriteLine($"[Frame Set Packet] seq: {sequence} f: {flags} pL: {pLength} rtype: {reliabilityType} frag: {isFragmented} relIndx: {reliableIndex} seqIndxL: {sequenceIndex} ordIndx: {orderIndex} ordCh: {orderChannel} compSize: {compSize} compIndx: {compIndex} compId: {compId}");
                         }
 
                     }
@@ -181,12 +195,37 @@ namespace DeamonMC
                 else if (recv < readOffset)
                 {
                     Console.ForegroundColor = ConsoleColor.Yellow;
-                    Console.WriteLine($"[Read Warn] Read too many bytes. Tryed to read more {readOffset - recv} bytes");
+                    Console.WriteLine($"[Read Warn] Read too many bytes. Tried to read more {readOffset - recv} bytes");
                     Console.ResetColor();
                 }
                 readOffset = 0;
+                packetHandler();
 
             }
+        }
+
+        public static void packetHandler()
+        {
+            foreach (byte[] buffer in packetBuffers)
+            {
+                readOffset = 0;
+                var pkid = DataTypes.ReadByte(buffer);
+                if (pkid == 9)
+                {
+                    var clientId = DataTypes.ReadLong(buffer);
+                    var time = DataTypes.ReadLongLE(buffer);
+                    var security = DataTypes.ReadByte(buffer);
+
+                    Console.ForegroundColor = ConsoleColor.DarkGray;
+                    Console.WriteLine($"[Connection Request] --clientId: {clientId}  time: {time} security: {security}");
+                    Console.ResetColor();
+                }
+                else
+                {
+                    Console.WriteLine($"[Server] Unknown packet: {pkid}");
+                }
+            }
+            packetBuffers.Clear();
         }
 
         public static void SendPacket(int pkid)

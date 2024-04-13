@@ -19,10 +19,8 @@ namespace DeamonMC
 
         public static short ReadShort(byte[] buffer)
         {
-            short value = (short)((Server.byteStream[Server.readOffset] << 8) | Server.byteStream[Server.readOffset + 1]);
-
+            short value = (short)((buffer[Server.readOffset] << 8) | buffer[Server.readOffset + 1]);
             Server.readOffset += 2;
-
             return value;
         }
 
