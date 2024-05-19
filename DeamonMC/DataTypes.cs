@@ -10,11 +10,25 @@ namespace DeamonMC
 
     public static class DataTypes
     {
+        public static bool ReadBool(byte[] buffer)
+        {
+            byte b = buffer[Server.readOffset];
+            Server.readOffset += 1;
+            return b == 1 ? true : false;
+        }
+
         public static int ReadInt(byte[] buffer)
         {
             int a = BitConverter.ToInt32(buffer, Server.readOffset);
             Server.readOffset += 4;
             return a;
+        }
+
+        public static void WriteInt(int value)
+        {
+            byte[] bytes = BitConverter.GetBytes(value);
+            Array.Copy(bytes, 0, Server.byteStream, Server.writeOffset, 4);
+            Server.writeOffset += 4;
         }
 
         public static short ReadShort(byte[] buffer)
@@ -168,6 +182,14 @@ namespace DeamonMC
             uint uint24leValue = (uint)(buffer[Server.readOffset] | (buffer[Server.readOffset + 1] << 8) | (buffer[Server.readOffset + 2] << 16));
             Server.readOffset += 3;
             return uint24leValue;
+        }
+
+        public static void WriteUInt24LE(uint value)
+        {
+            Server.byteStream[Server.writeOffset] = (byte)(value & 0xFF);
+            Server.byteStream[Server.writeOffset + 1] = (byte)((value >> 8) & 0xFF);
+            Server.byteStream[Server.writeOffset + 2] = (byte)((value >> 16) & 0xFF);
+            Server.writeOffset += 3;
         }
 
         public static void HexDump(byte[] buffer, int lenght)
