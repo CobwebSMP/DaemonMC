@@ -94,9 +94,17 @@ namespace DeamonMC
                 readOffset = 0;
                 var pkid = DataTypes.ReadByte(buffer);
                 Console.WriteLine($"[Server] <-- [previous client's 132] pkID: {pkid}");
-                if (pkid == 9)
+                if (pkid == ConnectionRequest.id)
                 {
                     ConnectionRequest.Decode(buffer);
+                }
+                else if (pkid == NewIncomingConnection.id)
+                {
+                    NewIncomingConnection.Decode(buffer);
+                }
+                else if (pkid == ConnectedPing.id)
+                {
+                    ConnectedPing.Decode(buffer);
                 }
                 else
                 {

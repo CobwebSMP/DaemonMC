@@ -39,7 +39,6 @@
                 {
                     reliableIndex = DataTypes.ReadUInt24LE(buffer);
                     sequenceIndex = DataTypes.ReadUInt24LE(buffer);
-                    orderIndex = DataTypes.ReadUInt24LE(buffer);
                     orderChannel = DataTypes.ReadByte(buffer);
                 }
                 else if (reliabilityType == 4)
@@ -82,7 +81,7 @@
 
         public static void ReliabilityHandler(
     byte[] body,
-    byte reliabilityType = 2,
+    byte reliabilityType = 3,
     bool isFragmented = false,
     uint reliableIndex = 0,
     uint sequenceIndex = 0,
@@ -124,7 +123,6 @@
             else if (reliabilityType == 3)
             {
                 DataTypes.WriteUInt24LE(reliableIndex);
-                DataTypes.WriteUInt24LE(sequenceIndex);
                 DataTypes.WriteUInt24LE(orderIndex);
                 DataTypes.WriteByte(orderChannel);
             }

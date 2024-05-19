@@ -43,7 +43,7 @@ namespace DeamonMC.RakNet
         {
             var pk = new ConnectionRequestAcceptedPacket
             {
-                Time = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+                Time = packet.Time,
             };
             //Console.WriteLine($"[Connection Request] --clientId: {packet.GUID}  time: {packet.Time} security: {packet.Security}");
             ConnectionRequestAccepted.Encode(pk);
@@ -63,6 +63,21 @@ namespace DeamonMC.RakNet
             {
                 Console.WriteLine($"NACK: {nack.singleSequence} / {nack.sequenceNumber} / {nack.firstSequenceNumber} / {nack.lastSequenceNumber}");
             }
+        }
+
+        public static void NewIncomingConnection(NewIncomingConnectionPacket packet)
+        {
+            Console.WriteLine($"NewIncomingConnectionPacket: {packet.serverAddress.ToString()} / {packet.incommingTime} / {packet.serverTime} / {packet.internalAddress.Count()}");
+        }
+
+        public static void ConnectedPing(ConnectedPingPacket packet)
+        {
+            var pk = new ConnectedPongPacket
+            {
+                pingTime = packet.Time,
+                pongTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+            };
+            ConnectedPong.Encode(pk);
         }
     }
 }

@@ -9,7 +9,7 @@
 
     public class ConnectionRequest
     {
-        public static byte id = 1;
+        public static byte id = 9;
         public static void Decode(byte[] buffer)
         {
             var packet = new ConnectionRequestPacket

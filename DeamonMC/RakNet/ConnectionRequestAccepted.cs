@@ -7,7 +7,7 @@
 
     public class ConnectionRequestAccepted
     {
-        public static byte id = 10;
+        public static byte id = 16;
         public static void Decode(byte[] buffer)
         {
 
@@ -19,20 +19,13 @@
             DataTypes.WriteAddress(); //todo
             DataTypes.WriteShort(0);
 
-            DataTypes.WriteAddress(); //todo
-            DataTypes.WriteAddress(); //todo
-            DataTypes.WriteAddress(); //todo
-            DataTypes.WriteAddress(); //todo
-            DataTypes.WriteAddress(); //todo
-            DataTypes.WriteAddress(); //todo
-            DataTypes.WriteAddress(); //todo
-            DataTypes.WriteAddress(); //todo
-            DataTypes.WriteAddress(); //todo
-            DataTypes.WriteAddress(); //todo
+            for (int i = 0; i < 40; ++i)
+            {
+                DataTypes.WriteAddress(); //todo
+            }
 
             DataTypes.WriteLongLE(fields.Time);
-            DataTypes.WriteLongLE(fields.Time);
-
+            DataTypes.WriteLongLE(DateTimeOffset.UtcNow.ToUnixTimeSeconds());
             Server.handlePacket();
         }
     }

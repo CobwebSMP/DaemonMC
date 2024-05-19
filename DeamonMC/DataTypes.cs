@@ -161,9 +161,10 @@ namespace DeamonMC
             return ipAddressInfo;
         }
 
-        public static void WriteAddress()
+        public static void WriteAddress(string ip = "127.0.0.1")
         {
-            byte[] ipAddress = new byte[] { 127, 0, 0, 1 };
+            string[] ipParts = ip.Split('.');
+            byte[] ipAddress = new byte[] { byte.Parse(ipParts[0]), byte.Parse(ipParts[1]), byte.Parse(ipParts[2]), byte.Parse(ipParts[3]) };
             ushort port = 19132;
 
             Server.byteStream[Server.writeOffset] = 4;
@@ -173,8 +174,38 @@ namespace DeamonMC
             Server.writeOffset += ipAddress.Length;
 
             byte[] portBytes = BitConverter.GetBytes(port);
+            Array.Reverse(portBytes);
             Array.Copy(portBytes, 0, Server.byteStream, Server.writeOffset, portBytes.Length);
             Server.writeOffset += portBytes.Length;
+        }
+
+        public static IPAddressInfo[] ReadInternalAddress(byte[] buffer, int count)
+        {
+            IPAddressInfo[] ipAddress = new IPAddressInfo[count];
+            for (int i = 0; i < count; ++i)
+            {
+                byte ipVersion = buffer[Server.readOffset];
+                Server.readOffset++;
+
+                IPAddressInfo ipAddressInfo = new IPAddressInfo();
+
+                if (ipVersion == 4)
+                {
+                    ipAddressInfo.IPAddress = new byte[4];
+                    Array.Copy(buffer, Server.readOffset, ipAddressInfo.IPAddress, 0, 4);
+                    ipAddressInfo.Port = BitConverter.ToUInt16(buffer, Server.readOffset + 4);
+                    Server.readOffset += 6;
+                }
+                else if (ipVersion == 6)
+                {
+                    ipAddressInfo.IPAddress = new byte[16];
+                    Array.Copy(buffer, Server.readOffset + 4, ipAddressInfo.IPAddress, 0, 16);
+                    ipAddressInfo.Port = BitConverter.ToUInt16(buffer, Server.readOffset + 2);
+                    Server.readOffset += 32;
+                }
+                ipAddress[i] = ipAddressInfo;
+            }
+            return ipAddress;
         }
 
         public static uint ReadUInt24LE(byte[] buffer)
