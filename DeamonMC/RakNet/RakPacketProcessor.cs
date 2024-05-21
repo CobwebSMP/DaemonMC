@@ -1,5 +1,4 @@
-﻿using System.Net;
-using System.Reflection.PortableExecutable;
+﻿using DeamonMC.Utils.Text;
 
 namespace DeamonMC.RakNet
 {
@@ -45,6 +44,7 @@ namespace DeamonMC.RakNet
             {
                 Time = packet.Time,
             };
+            RakSessionManager.addSession(Server.clientEp, packet.GUID);
             //Console.WriteLine($"[Connection Request] --clientId: {packet.GUID}  time: {packet.Time} security: {packet.Security}");
             ConnectionRequestAccepted.Encode(pk);
         }
@@ -53,7 +53,7 @@ namespace DeamonMC.RakNet
         {
             foreach (var ack in packet.ACKs)
             {
-                Console.WriteLine($"ACK: {ack.singleSequence} / {ack.sequenceNumber} / {ack.firstSequenceNumber} / {ack.lastSequenceNumber}");
+               // Console.WriteLine($"ACK: {ack.singleSequence} / {ack.sequenceNumber} / {ack.firstSequenceNumber} / {ack.lastSequenceNumber}");
             }
         }
 
@@ -61,13 +61,13 @@ namespace DeamonMC.RakNet
         {
             foreach (var nack in packet.NACKs)
             {
-                Console.WriteLine($"NACK: {nack.singleSequence} / {nack.sequenceNumber} / {nack.firstSequenceNumber} / {nack.lastSequenceNumber}");
+               // Console.WriteLine($"NACK: {nack.singleSequence} / {nack.sequenceNumber} / {nack.firstSequenceNumber} / {nack.lastSequenceNumber}");
             }
         }
 
         public static void NewIncomingConnection(NewIncomingConnectionPacket packet)
         {
-            Console.WriteLine($"NewIncomingConnectionPacket: {packet.serverAddress.ToString()} / {packet.incommingTime} / {packet.serverTime} / {packet.internalAddress.Count()}");
+            //Log.warn($"NewIncomingConnectionPacket: {packet.serverAddress.IPAddress[0]}.{packet.serverAddress.IPAddress[1]}.{packet.serverAddress.IPAddress[2]}.{packet.serverAddress.IPAddress[3]}:{packet.serverAddress.Port} / {packet.incommingTime} / {packet.serverTime} / {packet.internalAddress.Count()}");
         }
 
         public static void ConnectedPing(ConnectedPingPacket packet)
@@ -78,6 +78,11 @@ namespace DeamonMC.RakNet
                 pongTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
             };
             ConnectedPong.Encode(pk);
+        }
+
+        public static void Disconnect(DisconnectPacket packet)
+        {
+            RakSessionManager.deleteSession(Server.clientEp);
         }
     }
 }

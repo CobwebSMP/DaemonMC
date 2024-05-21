@@ -17,6 +17,12 @@ namespace DeamonMC
             return b == 1 ? true : false;
         }
 
+        public static void WriteBool(bool value)
+        {
+            Server.byteStream[Server.writeOffset] = value == true ? (byte)1 : (byte)0;
+            Server.writeOffset += 1;
+        }
+
         public static int ReadInt(byte[] buffer)
         {
             int a = BitConverter.ToInt32(buffer, Server.readOffset);
@@ -29,6 +35,52 @@ namespace DeamonMC
             byte[] bytes = BitConverter.GetBytes(value);
             Array.Copy(bytes, 0, Server.byteStream, Server.writeOffset, 4);
             Server.writeOffset += 4;
+        }
+
+        public static void WriteFloat(float value)
+        {
+            byte[] bytes = BitConverter.GetBytes(value);
+            Array.Copy(bytes, 0, Server.byteStream, Server.writeOffset, 4);
+            Server.writeOffset += 4;
+        }
+
+        public static int ReadIntBE(byte[] buffer)
+        {
+            Array.Reverse(buffer, Server.readOffset, 4);
+            int a = BitConverter.ToInt32(buffer, Server.readOffset);
+            Server.readOffset += 4;
+            return a;
+        }
+
+        public static int ReadVarInt(byte[] data)
+        {
+            int value = 0;
+            int size = 0;
+
+            while (true)
+            {
+                byte currentByte = data[Server.readOffset++];
+                value |= (currentByte & 0x7F) << (size * 7);
+
+                if ((currentByte & 0x80) == 0)
+                {
+                    break;
+                }
+
+                size++;
+            }
+
+            return value;
+        }
+
+        public static void WriteVarInt(int value)
+        {
+            while ((value & -128) != 0)
+            {
+                Server.byteStream[Server.writeOffset++] = (byte)((value & 127) | 128);
+                value >>= 7;
+            }
+            Server.byteStream[Server.writeOffset++] = (byte)(value & 127);
         }
 
         public static short ReadShort(byte[] buffer)
@@ -77,6 +129,13 @@ namespace DeamonMC
         {
             byte[] valueBytes = BitConverter.GetBytes(value); 
             Array.Reverse(valueBytes);
+            Array.Copy(valueBytes, 0, Server.byteStream, Server.writeOffset, 8);
+            Server.writeOffset += 8;
+        }
+
+        public static void WriteLong(long value)
+        {
+            byte[] valueBytes = BitConverter.GetBytes(value);
             Array.Copy(valueBytes, 0, Server.byteStream, Server.writeOffset, 8);
             Server.writeOffset += 8;
         }

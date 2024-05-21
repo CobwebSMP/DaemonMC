@@ -19,7 +19,7 @@
             DataTypes.WriteByte(id);
             DataTypes.WriteLongLE(fields.pingTime);
             DataTypes.WriteLongLE(fields.pongTime);
-            Server.SendPacket(id);
+            Server.handlePacket();
         }
     }
 }

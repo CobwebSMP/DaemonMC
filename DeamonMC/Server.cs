@@ -1,6 +1,8 @@
 ﻿using System.Net.Sockets;
 using System.Net;
 using DeamonMC.RakNet;
+using DeamonMC.Bedrock;
+using DeamonMC.Utils.Text;
 
 namespace DeamonMC
 {
@@ -18,7 +20,7 @@ namespace DeamonMC
             sock = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
             IPEndPoint iep = new IPEndPoint(IPAddress.Any, 19132);
             sock.Bind(iep);
-            Console.WriteLine("Server listening on port 19132");
+            Log.info("Server listening on port 19132");
 
             while (true)
             {
@@ -33,7 +35,7 @@ namespace DeamonMC
                 var clientPort = clientEp.Port;
 
                 var pkid = DataTypes.ReadByte(buffer);
-                Console.WriteLine($"[Server] <-- [{clientIp}:{clientPort}] pkID: {pkid}");
+                Log.debug($"[Server] <-- [{clientIp}:{clientPort}] pkID: {pkid}");
 
 
                 if (pkid == UnconnectedPing.id)
@@ -64,22 +66,18 @@ namespace DeamonMC
                     }
                     else
                     {
-                        Console.WriteLine($"[Server] Unknown packet: {pkid}");
+                        Log.error($"[Server] Unknown RakNet packet: {pkid}");
                         DataTypes.HexDump(buffer, recv);
                     }
                 }
 
                 if (recv > readOffset)
                 {
-                    Console.ForegroundColor = ConsoleColor.Yellow;
-                    Console.WriteLine($"[Read Warn] Still left {recv - readOffset} bytes");
-                    Console.ResetColor();
+                    Log.warn($"[Read Warn] Still left {recv - readOffset} bytes");
                 }
                 else if (recv < readOffset)
                 {
-                    Console.ForegroundColor = ConsoleColor.Yellow;
-                    Console.WriteLine($"[Read Warn] Read too many bytes. Tried to read more {readOffset - recv} bytes");
-                    Console.ResetColor();
+                    Log.warn($"[Read Warn] Read too many bytes. Tried to read more {readOffset - recv} bytes");
                 }
                 readOffset = 0;
                 packetHandler();
@@ -93,7 +91,7 @@ namespace DeamonMC
             {
                 readOffset = 0;
                 var pkid = DataTypes.ReadByte(buffer);
-                Console.WriteLine($"[Server] <-- [previous client's 132] pkID: {pkid}");
+                if (pkid != 254) { Log.debug($"[Server] <-- [previous client's 132] pkID: {pkid}");}
                 if (pkid == ConnectionRequest.id)
                 {
                     ConnectionRequest.Decode(buffer);
@@ -106,9 +104,30 @@ namespace DeamonMC
                 {
                     ConnectedPing.Decode(buffer);
                 }
+                else if (pkid == Disconnect.id)
+                {
+                    Disconnect.Decode(buffer);
+                }
                 else
                 {
-                    Console.WriteLine($"[Server] Unknown packet: {pkid}");
+                    if (pkid == 254)
+                    {
+                        DataTypes.ReadByte(buffer);
+                        var pkid2 = DataTypes.ReadVarInt(buffer);
+                        Log.debug($"[Server] <-- [previous client's 132] pkID: {pkid2}");
+                        if (pkid2 == RequestNetworkSettings.id)
+                        {
+                            RequestNetworkSettings.Decode(buffer);
+                        }
+                        else
+                        {
+                            Log.error($"[Server] Unknown Bedrock packet: {pkid}");
+                        }
+                    }
+                    else
+                    {
+                        Log.error($"[Server] Unknown RakNet packet2: {pkid}");
+                    }
                 }
             }
             packetBuffers.Clear();
@@ -118,7 +137,7 @@ namespace DeamonMC
         {
             var clientIp = clientEp.Address.ToString();
             var clientPort = clientEp.Port;
-            Console.WriteLine($"[Server] --> [{clientIp}:{clientPort}] pkID: {pkid}");
+            Log.debug($"[Server] --> [{clientIp}:{clientPort}] pkID: {pkid}");
             byte[] trimmedBuffer = new byte[writeOffset];
             Array.Copy(byteStream, trimmedBuffer, writeOffset);
             sock.SendTo(trimmedBuffer, clientEp);
@@ -126,13 +145,24 @@ namespace DeamonMC
             byteStream = new byte[1024];
         }
 
-        public static void handlePacket()
+        public static void handlePacket(string type = "")
         {
             byte[] trimmedBuffer = new byte[writeOffset];
             Array.Copy(byteStream, trimmedBuffer, writeOffset);
+            if (RakSessionManager.getSession(clientEp).initCompression)
+            {
+                byte[] header = { 255, 254, (byte)writeOffset };
+                byte[] newtrimmedBuffer = new byte[trimmedBuffer.Length + header.Length];
+                Array.Copy(header, 0, newtrimmedBuffer, 0, header.Length);
+                Array.Copy(trimmedBuffer, 0, newtrimmedBuffer, header.Length, trimmedBuffer.Length);
+                writeOffset = 0;
+                byteStream = new byte[1024];
+                Reliability.ReliabilityHandler(newtrimmedBuffer);
+                DataTypes.HexDump(newtrimmedBuffer, newtrimmedBuffer.Length);
+            }
             writeOffset = 0;
             byteStream = new byte[1024];
             Reliability.ReliabilityHandler(trimmedBuffer);
         }
-    }
+     }
 }

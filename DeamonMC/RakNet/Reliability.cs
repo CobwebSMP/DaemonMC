@@ -81,7 +81,7 @@
 
         public static void ReliabilityHandler(
     byte[] body,
-    byte reliabilityType = 3,
+    byte reliabilityType = 2,
     bool isFragmented = false,
     uint reliableIndex = 0,
     uint sequenceIndex = 0,
@@ -100,7 +100,7 @@
                 flags |= 0b00010000;
             }
 
-            DataTypes.WriteByte(132);
+            DataTypes.WriteByte(128);
             DataTypes.WriteUInt24LE(1);
             // Write flags and pLength
             DataTypes.WriteByte(flags);
@@ -157,7 +157,7 @@
                 DataTypes.WriteShort(compId);
                 DataTypes.WriteInt(compIndex);
             }
-            Server.SendPacket(132);
+            Server.SendPacket(128);
         }
     }
 }
