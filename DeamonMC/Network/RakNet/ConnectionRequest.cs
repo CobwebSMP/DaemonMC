@@ -1,4 +1,4 @@
-﻿namespace DeamonMC.RakNet
+﻿namespace DeamonMC.Network.RakNet
 {
     public class ConnectionRequestPacket
     {
@@ -24,7 +24,11 @@
 
         public static void Encode(ConnectionRequestPacket fields)
         {
-
+            DataTypes.WriteByte(id);
+            DataTypes.WriteLong(fields.GUID);
+            DataTypes.WriteLongLE(fields.Time);
+            DataTypes.WriteByte(fields.Security);
+            Server.handlePacket();
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace DeamonMC.Bedrock
+﻿namespace DeamonMC.Network.Bedrock
 {
     public class NetworkSettingsPacket
     {

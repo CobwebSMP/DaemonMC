@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using System.Reflection.PortableExecutable;
 
-namespace DeamonMC.RakNet
+namespace DeamonMC.Network.RakNet
 {
     public class OpenConnectionRequest2Packet
     {

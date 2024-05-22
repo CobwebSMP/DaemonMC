@@ -1,7 +1,7 @@
-﻿using DeamonMC.RakNet;
+﻿using DeamonMC.Network.RakNet;
 using DeamonMC.Utils.Text;
 
-namespace DeamonMC.Bedrock
+namespace DeamonMC.Network.Bedrock
 {
     public class BedrockPacketProcessor
     {

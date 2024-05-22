@@ -1,8 +1,10 @@
 ﻿using System.Net.Sockets;
 using System.Net;
-using DeamonMC.RakNet;
-using DeamonMC.Bedrock;
 using DeamonMC.Utils.Text;
+using DeamonMC.Network.RakNet;
+using DeamonMC.Network.Bedrock;
+using DeamonMC.Network;
+using static DeamonMC.Network.Info;
 
 namespace DeamonMC
 {
@@ -35,7 +37,7 @@ namespace DeamonMC
                 var clientPort = clientEp.Port;
 
                 var pkid = DataTypes.ReadByte(buffer);
-                Log.debug($"[Server] <-- [{clientIp}:{clientPort}] pkID: {pkid}");
+                if (pkid <= 127 || pkid >= 141) { Log.debug($"[Server] <-- [{clientIp,-16}:{clientPort}] {(Info.RakNet)pkid}"); }
 
 
                 if (pkid == UnconnectedPing.id)
@@ -91,7 +93,7 @@ namespace DeamonMC
             {
                 readOffset = 0;
                 var pkid = DataTypes.ReadByte(buffer);
-                if (pkid != 254) { Log.debug($"[Server] <-- [previous client's 132] pkID: {pkid}");}
+                if (pkid != 254) { Log.debug($"[Server] <-- [{clientEp.Address,-16}:{clientEp.Port}] {(Info.RakNet)pkid}"); }
                 if (pkid == ConnectionRequest.id)
                 {
                     ConnectionRequest.Decode(buffer);
@@ -114,7 +116,7 @@ namespace DeamonMC
                     {
                         DataTypes.ReadByte(buffer);
                         var pkid2 = DataTypes.ReadVarInt(buffer);
-                        Log.debug($"[Server] <-- [previous client's 132] pkID: {pkid2}");
+                        Log.debug($"[Server] <-- [{clientEp.Address,-16}:{clientEp.Port}] {(Info.Bedrock)pkid2}");
                         if (pkid2 == RequestNetworkSettings.id)
                         {
                             RequestNetworkSettings.Decode(buffer);
@@ -137,7 +139,7 @@ namespace DeamonMC
         {
             var clientIp = clientEp.Address.ToString();
             var clientPort = clientEp.Port;
-            Log.debug($"[Server] --> [{clientIp}:{clientPort}] pkID: {pkid}");
+            if (pkid <= 127 || pkid >= 141) { Log.debug($"[Server] --> [{clientIp,-16}:{clientPort}] {(Info.RakNet)pkid}"); };
             byte[] trimmedBuffer = new byte[writeOffset];
             Array.Copy(byteStream, trimmedBuffer, writeOffset);
             sock.SendTo(trimmedBuffer, clientEp);
@@ -149,6 +151,8 @@ namespace DeamonMC
         {
             byte[] trimmedBuffer = new byte[writeOffset];
             Array.Copy(byteStream, trimmedBuffer, writeOffset);
+            if (type == "") { Log.debug($"[Server] --> [{clientEp.Address,-16}:{clientEp.Port}] {(Info.RakNet)trimmedBuffer[0]}"); };
+            if (type == "bedrock") { readOffset = 2; Log.debug($"[Server] --> [{clientEp.Address,-16}:{clientEp.Port}] {(Info.Bedrock)DataTypes.ReadVarInt(trimmedBuffer)}"); };
             if (RakSessionManager.getSession(clientEp).initCompression)
             {
                 byte[] header = { 255, 254, (byte)writeOffset };

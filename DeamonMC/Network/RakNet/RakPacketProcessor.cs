@@ -1,6 +1,6 @@
 ﻿using DeamonMC.Utils.Text;
 
-namespace DeamonMC.RakNet
+namespace DeamonMC.Network.RakNet
 {
     public class RakPacketProcessor
     {

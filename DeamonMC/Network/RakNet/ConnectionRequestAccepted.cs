@@ -1,4 +1,4 @@
-﻿namespace DeamonMC.RakNet
+﻿namespace DeamonMC.Network.RakNet
 {
     public class ConnectionRequestAcceptedPacket
     {
@@ -10,7 +10,17 @@
         public static byte id = 16;
         public static void Decode(byte[] buffer)
         {
+            DataTypes.ReadByte(buffer);
+            DataTypes.ReadAddress(buffer);
+            DataTypes.ReadShort(buffer);
+            DataTypes.ReadInternalAddress(buffer, 20); //todo check
+            var packet = new ConnectionRequestAcceptedPacket
+            {
+                Time = DataTypes.ReadLongLE(buffer),
+            };
+            DataTypes.ReadLongLE(buffer);
 
+            RakClientPacketProcessor.ConnectionRequestAccepted(packet);
         }
 
         public static void Encode(ConnectionRequestAcceptedPacket fields)

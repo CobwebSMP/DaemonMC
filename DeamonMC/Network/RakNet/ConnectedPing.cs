@@ -1,4 +1,4 @@
-﻿namespace DeamonMC.RakNet
+﻿namespace DeamonMC.Network.RakNet
 {
     public class ConnectedPingPacket
     {
@@ -20,7 +20,9 @@
 
         public static void Encode(ConnectedPingPacket fields)
         {
-
+            DataTypes.WriteByte(id);
+            DataTypes.WriteLongLE(fields.Time);
+            Server.handlePacket();
         }
     }
 }
