@@ -19,7 +19,7 @@
         public static void Encode(DisconnectPacket fields)
         {
             DataTypes.WriteByte(id);
-            Server.handlePacket();
+            PacketEncoder.handlePacket();
         }
     }
 }

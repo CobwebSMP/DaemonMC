@@ -22,7 +22,7 @@
         {
             DataTypes.WriteByte(id);
             DataTypes.WriteLongLE(fields.Time);
-            Server.handlePacket();
+            PacketEncoder.handlePacket();
         }
     }
 }

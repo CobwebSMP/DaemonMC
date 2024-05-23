@@ -36,7 +36,7 @@
 
             DataTypes.WriteLongLE(fields.Time);
             DataTypes.WriteLongLE(DateTimeOffset.UtcNow.ToUnixTimeSeconds());
-            Server.handlePacket();
+            PacketEncoder.handlePacket();
         }
     }
 }

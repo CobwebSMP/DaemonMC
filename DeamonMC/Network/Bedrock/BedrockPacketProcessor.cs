@@ -7,7 +7,7 @@ namespace DeamonMC.Network.Bedrock
     {
         public static void RequestNetworkSettings(RequestNetworkSettingsPacket packet)
         {
-            Log.info($"New player ({RakSessionManager.getSession(Server.clientEp).GUID}) logging in with protocol version: {packet.protocolVersion}");
+            Log.info($"New player ({RakSessionManager.getSession(Server.clientEp).GUID}) log in with protocol version: {packet.protocolVersion}");
             var pk = new NetworkSettingsPacket
             {
                 compressionThreshold = 0,

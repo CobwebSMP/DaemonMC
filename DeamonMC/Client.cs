@@ -1,5 +1,6 @@
 ﻿using System.Net.Sockets;
 using System.Net;
+using DeamonMC.Network;
 
 namespace DeamonMC
 {
@@ -33,11 +34,11 @@ namespace DeamonMC
                 DataTypes.WriteLongLE(123456);
 
                 Console.WriteLine("[Server] --> [Broadcast] pkID: 1");
-                byte[] trimmedBuffer = new byte[Server.writeOffset];
-                Array.Copy(Server.byteStream, trimmedBuffer, Server.writeOffset);
+                byte[] trimmedBuffer = new byte[PacketEncoder.writeOffset];
+                Array.Copy(PacketEncoder.byteStream, trimmedBuffer, PacketEncoder.writeOffset);
                 sock.SendTo(trimmedBuffer, iep);
-                Server.writeOffset = 0;
-                Server.byteStream = new byte[1024];
+                PacketEncoder.writeOffset = 0;
+                PacketEncoder.byteStream = new byte[1024];
                 Thread.Sleep(1000);
             }
         }
@@ -65,7 +66,7 @@ namespace DeamonMC
                                 var motd = DataTypes.ReadString(receiveBuffer);
                                 Console.WriteLine($"--time: {time} serverid: {serverid} magic: {magic} motd: {motd}");
                             }
-                            Server.readOffset = 0;
+                            PacketDecoder.readOffset = 0;
                         }
                     }
                 }

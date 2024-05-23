@@ -27,7 +27,7 @@ namespace DeamonMC.Network.RakNet
             DataTypes.WriteAddress(); //todo
             DataTypes.WriteShort((ushort)fields.Mtu);
             DataTypes.WriteByte(0); //todo
-            Server.SendPacket(id);
+            PacketEncoder.SendPacket(id);
         }
     }
 }

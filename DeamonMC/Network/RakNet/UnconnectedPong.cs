@@ -23,7 +23,7 @@
             DataTypes.WriteLongLE(fields.GUID);
             DataTypes.WriteMagic(fields.Magic);
             DataTypes.WriteString(fields.MOTD);
-            Server.SendPacket(id);
+            PacketEncoder.SendPacket(id);
         }
     }
 }

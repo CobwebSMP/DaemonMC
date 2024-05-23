@@ -27,7 +27,7 @@
             DataTypes.WriteBool(fields.clientThrottleEnabled);
             DataTypes.WriteByte(fields.clientThrottleThreshold);
             DataTypes.WriteFloat(fields.clientThrottleScalar);
-            Server.handlePacket("bedrock");
+            PacketEncoder.handlePacket("bedrock");
         }
     }
 }

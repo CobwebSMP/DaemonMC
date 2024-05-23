@@ -14,7 +14,7 @@
             short compId = 0;
             int compIndex = 0;
 
-            while (Server.readOffset < recv)
+            while (PacketDecoder.readOffset < recv)
             {
                 var flags = DataTypes.ReadByte(buffer);
                 var pLength = DataTypes.ReadShort(buffer);
@@ -64,8 +64,8 @@
 
                 int lengthInBytes = (pLength + 7) / 8;
                 byte[] body = new byte[lengthInBytes];
-                Array.Copy(buffer, Server.readOffset, body, 0, lengthInBytes);
-                Server.readOffset += lengthInBytes;
+                Array.Copy(buffer, PacketDecoder.readOffset, body, 0, lengthInBytes);
+                PacketDecoder.readOffset += lengthInBytes;
 
                 if (isFragmented)
                 {
@@ -74,7 +74,7 @@
                     compIndex = DataTypes.ReadInt(buffer);
                     Console.WriteLine("FRGMENTED!");
                 }
-                Server.packetBuffers.Add(body);
+                PacketDecoder.packetBuffers.Add(body);
                 //Console.WriteLine($"[Frame Set Packet] seq: {sequence} f: {flags} pL: {pLength} rtype: {reliabilityType} frag: {isFragmented} relIndx: {reliableIndex} seqIndxL: {sequenceIndex} ordIndx: {orderIndex} ordCh: {orderChannel} compSize: {compSize} compIndx: {compIndex} compId: {compId}");
             }
         }
@@ -91,9 +91,6 @@
     ushort compId = 0,
     int compIndex = 0)
         {
-            int offset = 0;
-
-            // Calculate flags based on reliabilityType and isFragmented
             byte flags = (byte)((reliabilityType << 5) & 0b01110000);
             if (isFragmented)
             {
@@ -102,11 +99,9 @@
 
             DataTypes.WriteByte(128);
             DataTypes.WriteUInt24LE(1);
-            // Write flags and pLength
             DataTypes.WriteByte(flags);
             DataTypes.WriteShort((ushort)body.Count());
 
-            // Write reliability-specific data
             if (reliabilityType == 0)
             {
                 // nothing
@@ -147,17 +142,16 @@
                 DataTypes.WriteByte(orderChannel);
             }
 
-            Array.Copy(body, 0, Server.byteStream, Server.writeOffset, body.Length);
-            Server.writeOffset += body.Length;
+            Array.Copy(body, 0, PacketEncoder.byteStream, PacketEncoder.writeOffset, body.Length);
+            PacketEncoder.writeOffset += body.Length;
 
-            // Write fragmentation data if fragmented
             if (isFragmented)
             {
                 DataTypes.WriteInt(compSize);
                 DataTypes.WriteShort(compId);
                 DataTypes.WriteInt(compIndex);
             }
-            Server.SendPacket(128);
+            PacketEncoder.SendPacket(128);
         }
     }
 }
