@@ -5,8 +5,8 @@ namespace DeamonMC
     public static class DeamonMC
     {
         public static string servername = "DeamonMC";
-        public static string version = "1.20.70";
-        public static int protocolVersion = 671;
+        public static string version = "1.21.1";
+        public static int protocolVersion = 685;
         public static string maxOnline = "10";
         public static void Main()
         {

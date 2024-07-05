@@ -96,46 +96,50 @@
             {
                 flags |= 0b00010000;
             }
+            else
+            {
+                flags |= 0x00;
+            }
 
             DataTypes.WriteByte(128);
             DataTypes.WriteUInt24LE(1);
             DataTypes.WriteByte(flags);
-            DataTypes.WriteShort((ushort)body.Count());
+            DataTypes.WriteShortBE((ushort)(body.Count() * 8));
 
-            if (reliabilityType == 0)
+            if (reliabilityType == 0) // Unreliable
             {
                 // nothing
             }
-            else if (reliabilityType == 1)
+            else if (reliabilityType == 1) // Reliable
             {
                 DataTypes.WriteUInt24LE(reliableIndex);
                 DataTypes.WriteUInt24LE(sequenceIndex);
             }
-            else if (reliabilityType == 2)
+            else if (reliabilityType == 2) // Sequenced
             {
                 DataTypes.WriteUInt24LE(reliableIndex);
             }
-            else if (reliabilityType == 3)
-            {
-                DataTypes.WriteUInt24LE(reliableIndex);
-                DataTypes.WriteUInt24LE(orderIndex);
-                DataTypes.WriteByte(orderChannel);
-            }
-            else if (reliabilityType == 4)
+            else if (reliabilityType == 3) // Ordered
             {
                 DataTypes.WriteUInt24LE(reliableIndex);
                 DataTypes.WriteUInt24LE(orderIndex);
                 DataTypes.WriteByte(orderChannel);
             }
-            else if (reliabilityType == 5)
+            else if (reliabilityType == 4) // Reliable Ordered
+            {
+                DataTypes.WriteUInt24LE(reliableIndex);
+                DataTypes.WriteUInt24LE(orderIndex);
+                DataTypes.WriteByte(orderChannel);
+            }
+            else if (reliabilityType == 5) // Reliable Sequenced
             {
                 // nothing
             }
-            else if (reliabilityType == 6)
+            else if (reliabilityType == 6) // Unreliable, ACK
             {
                 DataTypes.WriteUInt24LE(reliableIndex);
             }
-            else if (reliabilityType == 7)
+            else if (reliabilityType == 7) // Reliable, ACK
             {
                 DataTypes.WriteUInt24LE(reliableIndex);
                 DataTypes.WriteUInt24LE(orderIndex);

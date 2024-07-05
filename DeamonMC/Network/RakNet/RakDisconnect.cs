@@ -1,22 +1,22 @@
 ﻿namespace DeamonMC.Network.RakNet
 {
-    public class DisconnectPacket
+    public class RakDisconnectPacket
     {
 
     }
 
-    public class Disconnect
+    public class RakDisconnect
     {
         public static byte id = 21;
         public static void Decode(byte[] buffer)
         {
-            var packet = new DisconnectPacket
+            var packet = new RakDisconnectPacket
             {
             };
             RakPacketProcessor.Disconnect(packet);
         }
 
-        public static void Encode(DisconnectPacket fields)
+        public static void Encode(RakDisconnectPacket fields)
         {
             DataTypes.WriteByte(id);
             PacketEncoder.handlePacket();

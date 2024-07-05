@@ -80,7 +80,7 @@ namespace DeamonMC.Network.RakNet
             ConnectedPong.Encode(pk);
         }
 
-        public static void Disconnect(DisconnectPacket packet)
+        public static void Disconnect(RakDisconnectPacket packet)
         {
             RakSessionManager.deleteSession(Server.clientEp);
         }

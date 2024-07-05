@@ -33,6 +33,7 @@ namespace DeamonMC
 
         public static void Send(byte[] trimmedBuffer, IPEndPoint client)
         {
+            DataTypes.HexDump(trimmedBuffer, trimmedBuffer.Length);
             sock.SendTo(trimmedBuffer, client);
             PacketEncoder.writeOffset = 0;
             PacketEncoder.byteStream = new byte[1024];

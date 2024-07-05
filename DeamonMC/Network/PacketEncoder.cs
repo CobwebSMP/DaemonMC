@@ -13,7 +13,7 @@ namespace DeamonMC.Network
             byte[] trimmedBuffer = new byte[writeOffset];
             Array.Copy(byteStream, trimmedBuffer, writeOffset);
             if (type == "") { Log.debug($"[Server] --> [{Server.clientEp.Address,-16}:{Server.clientEp.Port}] {(Info.RakNet)trimmedBuffer[0]}"); };
-            if (type == "bedrock") { PacketDecoder.readOffset = 2; Log.debug($"[Server] --> [{Server.clientEp.Address,-16}:{Server.clientEp.Port}] {(Info.Bedrock)DataTypes.ReadVarInt(trimmedBuffer)}"); };
+            if (type == "bedrock") { PacketDecoder.readOffset = 3; Log.debug($"[Server] --> [{Server.clientEp.Address,-16}:{Server.clientEp.Port}] {(Info.Bedrock)DataTypes.ReadVarInt(trimmedBuffer)}"); };
             if (RakSessionManager.getSession(Server.clientEp).initCompression)
             {
                 byte[] header = { 255, 254, (byte)writeOffset };
@@ -39,5 +39,10 @@ namespace DeamonMC.Network
             Array.Copy(byteStream, trimmedBuffer, writeOffset);
             Server.Send(trimmedBuffer, Server.clientEp);
         }
+
+        //FE FF 0C 05 00 00 00 04 74 65 73 74 00 00 00 00
+        //FE - 254 Bedrock packet
+        //FF - 255 no compression
+        //05 - packet id
     }
 }

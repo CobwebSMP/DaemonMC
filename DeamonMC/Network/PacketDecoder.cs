@@ -84,9 +84,9 @@ namespace DeamonMC.Network
                 {
                     ConnectedPing.Decode(buffer);
                 }
-                else if (pkid == Disconnect.id)
+                else if (pkid == RakDisconnect.id)
                 {
-                    Disconnect.Decode(buffer);
+                    RakDisconnect.Decode(buffer);
                 }
                 else
                 {

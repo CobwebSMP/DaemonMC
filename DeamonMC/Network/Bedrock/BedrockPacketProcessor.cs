@@ -16,7 +16,13 @@ namespace DeamonMC.Network.Bedrock
                 clientThrottleScalar = 0,
                 clientThrottleThreshold = 0
             };
-            NetworkSettings.Encode(pk);
+            // NetworkSettings.Encode(pk);
+
+            var pk2 = new DisconnectPacket
+            {
+
+            };
+            Disconnect.Encode(pk2);
             //RakSessionManager.Compression(Server.clientEp, true);
         }
     }

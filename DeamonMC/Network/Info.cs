@@ -22,6 +22,7 @@
 
         public enum Bedrock
         {
+            Disconnect = 5,                       //0x05
             NetworkSettings = 143,                //0xc1
             RequestNetworkSettings = 193,         //0x8F
         }

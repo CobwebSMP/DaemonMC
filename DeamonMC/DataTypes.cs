@@ -91,10 +91,17 @@ namespace DeamonMC
             return value;
         }
 
-        public static void WriteShort(ushort value)
+        public static void WriteShortBE(ushort value)
         {
             PacketEncoder.byteStream[PacketEncoder.writeOffset] = (byte)(value >> 8);
             PacketEncoder.byteStream[PacketEncoder.writeOffset + 1] = (byte)value;
+            PacketEncoder.writeOffset += 2;
+        }
+
+        public static void WriteShort(ushort value)
+        {
+            PacketEncoder.byteStream[PacketEncoder.writeOffset] = (byte)value;
+            PacketEncoder.byteStream[PacketEncoder.writeOffset + 1] = (byte)(value >> 8);
             PacketEncoder.writeOffset += 2;
         }
 
