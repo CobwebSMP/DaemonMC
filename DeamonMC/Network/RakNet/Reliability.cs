@@ -1,7 +1,10 @@
-﻿namespace DeamonMC.Network.RakNet
+﻿using System.Net.Sockets;
+
+namespace DeamonMC.Network.RakNet
 {
     public class Reliability
     {
+        public static uint reliableIndex = 0;
         public static void ReliabilityHandler(byte[] buffer, int recv)
         {
             uint sequence = DataTypes.ReadUInt24LE(buffer);
@@ -76,6 +79,18 @@
                 }
                 PacketDecoder.packetBuffers.Add(body);
                 //Console.WriteLine($"[Frame Set Packet] seq: {sequence} f: {flags} pL: {pLength} rtype: {reliabilityType} frag: {isFragmented} relIndx: {reliableIndex} seqIndxL: {sequenceIndex} ordIndx: {orderIndex} ordCh: {orderChannel} compSize: {compSize} compIndx: {compIndex} compId: {compId}");
+
+                var ack = new ACKdata { sequenceNumber = sequence };
+
+                var acks = new List<ACKdata>();
+
+                acks.Add(ack);
+
+                var pk = new ACKPacket
+                {
+                    ACKs = acks,
+                };
+                ACK.Encode(pk);
             }
         }
 
@@ -83,7 +98,6 @@
     byte[] body,
     byte reliabilityType = 2,
     bool isFragmented = false,
-    uint reliableIndex = 0,
     uint sequenceIndex = 0,
     uint orderIndex = 0,
     byte orderChannel = 0,
@@ -102,7 +116,7 @@
             }
 
             DataTypes.WriteByte(128);
-            DataTypes.WriteUInt24LE(1);
+            DataTypes.WriteUInt24LE(PacketEncoder.sequenceNumber);
             DataTypes.WriteByte(flags);
             DataTypes.WriteShortBE((ushort)(body.Count() * 8));
 
@@ -110,14 +124,15 @@
             {
                 // nothing
             }
-            else if (reliabilityType == 1) // Reliable
+            else if (reliabilityType == 1) // Unreliable Sequenced
             {
                 DataTypes.WriteUInt24LE(reliableIndex);
                 DataTypes.WriteUInt24LE(sequenceIndex);
             }
-            else if (reliabilityType == 2) // Sequenced
+            else if (reliabilityType == 2) // Reliable
             {
                 DataTypes.WriteUInt24LE(reliableIndex);
+                reliableIndex++;
             }
             else if (reliabilityType == 3) // Ordered
             {

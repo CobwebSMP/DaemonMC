@@ -22,8 +22,10 @@
 
         public enum Bedrock
         {
+            Login = 1,                            //0x01
             Disconnect = 5,                       //0x05
             NetworkSettings = 143,                //0xc1
+            PacketViolationWarningPacket = 156,   //
             RequestNetworkSettings = 193,         //0x8F
         }
     }

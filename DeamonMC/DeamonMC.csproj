@@ -7,4 +7,8 @@
     <OutputType>Exe</OutputType>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Snappy.Sharp" Version="1.0.0" />
+  </ItemGroup>
+
 </Project>

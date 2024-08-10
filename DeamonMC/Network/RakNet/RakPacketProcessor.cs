@@ -53,7 +53,7 @@ namespace DeamonMC.Network.RakNet
         {
             foreach (var ack in packet.ACKs)
             {
-               // Console.WriteLine($"ACK: {ack.singleSequence} / {ack.sequenceNumber} / {ack.firstSequenceNumber} / {ack.lastSequenceNumber}");
+                //Console.WriteLine($"ACK: {ack.singleSequence} / {ack.sequenceNumber} / {ack.firstSequenceNumber} / {ack.lastSequenceNumber}");
             }
         }
 
@@ -61,7 +61,7 @@ namespace DeamonMC.Network.RakNet
         {
             foreach (var nack in packet.NACKs)
             {
-               // Console.WriteLine($"NACK: {nack.singleSequence} / {nack.sequenceNumber} / {nack.firstSequenceNumber} / {nack.lastSequenceNumber}");
+                //Console.WriteLine($"NACK: {nack.singleSequence} / {nack.sequenceNumber} / {nack.firstSequenceNumber} / {nack.lastSequenceNumber}");
             }
         }
 

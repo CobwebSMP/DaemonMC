@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System;
+using System.Text;
 using DeamonMC.Network;
 
 namespace DeamonMC
@@ -51,6 +52,14 @@ namespace DeamonMC
             int a = BitConverter.ToInt32(buffer, PacketDecoder.readOffset);
             PacketDecoder.readOffset += 4;
             return a;
+        }
+
+        public static int ReadSignedVarInt(byte[] data)
+        {
+
+            int rawVarInt = ReadVarInt(data);
+            int value = (rawVarInt >> 1) ^ -(rawVarInt & 1);
+            return value;
         }
 
         public static int ReadVarInt(byte[] data)
@@ -169,7 +178,7 @@ namespace DeamonMC
             }
         }
 
-        public static string ReadString(byte[] buffer)
+        public static string ReadRakString(byte[] buffer)
         {
             ushort length = BitConverter.ToUInt16(buffer, PacketDecoder.readOffset);
             PacketDecoder.readOffset += 2;
@@ -179,7 +188,7 @@ namespace DeamonMC
             return str;
         }
 
-        public static void WriteString(string str)
+        public static void WriteRakString(string str)
         {
             ushort length = (ushort)str.Length;
             byte[] lengthBytes = BitConverter.GetBytes(length);
@@ -188,6 +197,23 @@ namespace DeamonMC
             PacketEncoder.writeOffset += 2; 
 
             byte[] strBytes = Encoding.UTF8.GetBytes(str);
+            Array.Copy(strBytes, 0, PacketEncoder.byteStream, PacketEncoder.writeOffset, strBytes.Length);
+            PacketEncoder.writeOffset += strBytes.Length;
+        }
+
+        public static string ReadString(byte[] buffer)
+        {
+            int length = ReadVarInt(buffer);
+            string str = Encoding.UTF8.GetString(buffer, PacketDecoder.readOffset, length);
+            PacketDecoder.readOffset += length;
+
+            return str;
+        }
+
+        public static void WriteString(string str)
+        {
+            byte[] strBytes = Encoding.UTF8.GetBytes(str);
+            WriteVarInt(strBytes.Length);
             Array.Copy(strBytes, 0, PacketEncoder.byteStream, PacketEncoder.writeOffset, strBytes.Length);
             PacketEncoder.writeOffset += strBytes.Length;
         }

@@ -11,19 +11,29 @@ namespace DeamonMC.Network.Bedrock
             var pk = new NetworkSettingsPacket
             {
                 compressionThreshold = 0,
-                compressionAlgorithm = 0,
+                compressionAlgorithm = 255,
                 clientThrottleEnabled = false,
                 clientThrottleScalar = 0,
                 clientThrottleThreshold = 0
             };
-            // NetworkSettings.Encode(pk);
-
+            NetworkSettings.Encode(pk);
+            RakSessionManager.Compression(Server.clientEp, true);
             var pk2 = new DisconnectPacket
             {
 
             };
             Disconnect.Encode(pk2);
-            //RakSessionManager.Compression(Server.clientEp, true);
+        }
+
+        public static void Login(LoginPacket packet)
+        {
+            Log.info($"net vers {packet.protocolVersion} ");
+        }
+
+        public static void PacketViolationWarning(PacketViolationWarningPacket packet)
+        {
+            Log.error($"Client reported that server sent failed packet '{(Info.Bedrock)packet.packetId}'");
+            Log.error(packet.description);
         }
     }
 }

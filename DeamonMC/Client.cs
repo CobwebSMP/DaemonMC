@@ -63,7 +63,7 @@ namespace DeamonMC
                                 var time = DataTypes.ReadLongLE(receiveBuffer);
                                 var serverid = DataTypes.ReadLongLE(receiveBuffer);
                                 var magic = DataTypes.ReadMagic(receiveBuffer);
-                                var motd = DataTypes.ReadString(receiveBuffer);
+                                var motd = DataTypes.ReadRakString(receiveBuffer);
                                 Console.WriteLine($"--time: {time} serverid: {serverid} magic: {magic} motd: {motd}");
                             }
                             PacketDecoder.readOffset = 0;

@@ -11,10 +11,11 @@ namespace DeamonMC
         public static void Main()
         {
             Log.debugMode = true;
-            Console.WriteLine("Choose DeamonMC mode");
-            Console.WriteLine("1 - Server");
-            Console.WriteLine("2 - Client");
-            string mode = Console.ReadLine();
+            //Console.WriteLine("Choose DeamonMC mode");
+            //Console.WriteLine("1 - Server");
+            //Console.WriteLine("2 - Client");
+            //string mode = Console.ReadLine();
+            var mode = "1";
             if (mode == "1")
             {
                 Server.ServerF();

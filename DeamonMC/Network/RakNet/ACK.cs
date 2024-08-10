@@ -1,4 +1,6 @@
-﻿namespace DeamonMC.Network.RakNet
+﻿using System;
+
+namespace DeamonMC.Network.RakNet
 {
     public class ACKPacket
     {
@@ -45,7 +47,11 @@
 
         public static void Encode(ACKPacket fields)
         {
-
+            DataTypes.WriteByte(id);
+            DataTypes.WriteShort(1);
+            DataTypes.WriteBool(true);
+            DataTypes.WriteUInt24LE(fields.ACKs[0].sequenceNumber);
+            PacketEncoder.handlePacket();
         }
     }
 }
