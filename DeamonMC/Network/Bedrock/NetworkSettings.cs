@@ -20,7 +20,7 @@
         public static void Encode(NetworkSettingsPacket fields)
         {
             DataTypes.WriteByte(254);
-            DataTypes.WriteByte(10);
+            DataTypes.WriteByte(12);
             DataTypes.WriteVarInt(id);
             DataTypes.WriteShort(fields.compressionThreshold);
             DataTypes.WriteShort(fields.compressionAlgorithm);

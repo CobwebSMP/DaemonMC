@@ -18,11 +18,11 @@ namespace DeamonMC.Network.Bedrock
             };
             NetworkSettings.Encode(pk);
             RakSessionManager.Compression(Server.clientEp, true);
-            var pk2 = new DisconnectPacket
+            /*var pk2 = new DisconnectPacket
             {
 
             };
-            Disconnect.Encode(pk2);
+            Disconnect.Encode(pk2);*/
         }
 
         public static void Login(LoginPacket packet)
