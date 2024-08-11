@@ -28,9 +28,13 @@ namespace DeamonMC.Network.Bedrock
 
         public static void Login(LoginPacket packet)
         {
-            //Log.debug($"net vers {packet.protocolVersion} ");
-            Log.debug("Got JWT data");
-            Log.info(packet.request);
+            var filteredJWT = new string(packet.request.Where(c => c >= 32 && c <= 126).ToArray());
+            int jsonEndIndex = filteredJWT.LastIndexOf('}');
+            if (jsonEndIndex >= 0)
+            {
+                filteredJWT = filteredJWT.Substring(0, jsonEndIndex + 1);
+            }
+            JWT.processJWTchain(filteredJWT);
         }
 
         public static void PacketViolationWarning(PacketViolationWarningPacket packet)

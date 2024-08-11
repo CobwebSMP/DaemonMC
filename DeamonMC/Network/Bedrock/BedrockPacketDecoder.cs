@@ -1,6 +1,5 @@
 ﻿using DeamonMC.Network.RakNet;
 using DeamonMC.Utils.Text;
-using Snappy.Sharp;
 
 namespace DeamonMC.Network.Bedrock
 {
