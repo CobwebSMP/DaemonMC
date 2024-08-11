@@ -14,6 +14,7 @@
             var packet = new LoginPacket
             {
                 protocolVersion = DataTypes.ReadIntBE(buffer),
+                request = DataTypes.ReadString(buffer),
             };
 
             BedrockPacketProcessor.Login(packet);

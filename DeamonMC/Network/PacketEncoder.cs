@@ -33,8 +33,14 @@ namespace DeamonMC.Network
             }
             writeOffset = 0;
             byteStream = new byte[1024];
-
-            Reliability.ReliabilityHandler(trimmedBuffer);
+            if (trimmedBuffer[0] == 3)
+            {
+                Reliability.ReliabilityHandler(trimmedBuffer, 0, false);
+            }
+            else
+            {
+                Reliability.ReliabilityHandler(trimmedBuffer);
+            }
         }
 
         public static void SendPacket(int pkid)

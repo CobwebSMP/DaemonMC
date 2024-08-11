@@ -55,11 +55,11 @@ namespace DeamonMC.Network
 
             if (recv > readOffset)
             {
-                Log.warn($"[Read Warn] Still left {recv - readOffset} bytes");
+                Log.warn($"[Read Warn] Still left {recv - readOffset} bytes (pkid = {pkid})");
             }
             else if (recv < readOffset)
             {
-                Log.warn($"[Read Warn] Read too many bytes. Tried to read more {readOffset - recv} bytes");
+                Log.warn($"[Read Warn] Read too many bytes. Tried to read more {readOffset - recv} bytes (pkid = {pkid})");
             }
             readOffset = 0;
             packetHandler();

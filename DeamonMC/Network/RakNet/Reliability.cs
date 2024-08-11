@@ -1,10 +1,27 @@
 ﻿using System.Net.Sockets;
+using DeamonMC.Utils.Text;
 
 namespace DeamonMC.Network.RakNet
 {
+    public class FragmentedPacket
+    {
+        public int TotalSize;
+        public int ReceivedSize;
+        public byte[][] Fragments;
+
+        public FragmentedPacket(int totalSize, int fragmentCount)
+        {
+            TotalSize = totalSize;
+            ReceivedSize = 0;
+            Fragments = new byte[fragmentCount][];
+        }
+    }
+
     public class Reliability
     {
         public static uint reliableIndex = 0;
+        public static Dictionary<short, FragmentedPacket> fragmentedPackets = new Dictionary<short, FragmentedPacket>();
+
         public static void ReliabilityHandler(byte[] buffer, int recv)
         {
             uint sequence = DataTypes.ReadUInt24LE(buffer);
@@ -20,7 +37,7 @@ namespace DeamonMC.Network.RakNet
             while (PacketDecoder.readOffset < recv)
             {
                 var flags = DataTypes.ReadByte(buffer);
-                var pLength = DataTypes.ReadShort(buffer);
+                var pLength = DataTypes.ReadShortBE(buffer);
 
                 byte reliabilityType = (byte)((flags & 0b011100000) >> 5);
                 bool isFragmented = (flags & 0b00010000) > 0;
@@ -65,6 +82,13 @@ namespace DeamonMC.Network.RakNet
                     orderChannel = DataTypes.ReadByte(buffer);
                 }
 
+                if (isFragmented)
+                {
+                    compSize = DataTypes.ReadIntBE(buffer);
+                    compId = DataTypes.ReadShortBE(buffer);
+                    compIndex = DataTypes.ReadIntBE(buffer);
+                }
+
                 int lengthInBytes = (pLength + 7) / 8;
                 byte[] body = new byte[lengthInBytes];
                 Array.Copy(buffer, PacketDecoder.readOffset, body, 0, lengthInBytes);
@@ -72,12 +96,26 @@ namespace DeamonMC.Network.RakNet
 
                 if (isFragmented)
                 {
-                    compSize = DataTypes.ReadInt(buffer);
-                    compId = DataTypes.ReadShort(buffer);
-                    compIndex = DataTypes.ReadInt(buffer);
-                    Console.WriteLine("FRGMENTED!");
+                    if (!fragmentedPackets.ContainsKey(compId))
+                    {
+                        fragmentedPackets[compId] = new FragmentedPacket(compSize, lengthInBytes);
+                    }
+
+                    var fragment = fragmentedPackets[compId];
+                    fragment.Fragments[compIndex] = body;
+                    fragment.ReceivedSize += body.Length;
+
+                    if (compSize == compIndex+1)
+                    {
+                        byte[] fullPacket = ReassemblePacket(fragment);
+                        ProcessReassembledPacket(fullPacket);
+                        fragmentedPackets.Remove(compId);
+                    }
                 }
-                PacketDecoder.packetBuffers.Add(body);
+                else
+                {
+                    PacketDecoder.packetBuffers.Add(body);
+                }
                 //Console.WriteLine($"[Frame Set Packet] seq: {sequence} f: {flags} pL: {pLength} rtype: {reliabilityType} frag: {isFragmented} relIndx: {reliableIndex} seqIndxL: {sequenceIndex} ordIndx: {orderIndex} ordCh: {orderChannel} compSize: {compSize} compIndx: {compIndex} compId: {compId}");
 
                 var ack = new ACKdata { sequenceNumber = sequence };
@@ -92,6 +130,28 @@ namespace DeamonMC.Network.RakNet
                 };
                 ACK.Encode(pk);
             }
+        }
+
+        private static byte[] ReassemblePacket(FragmentedPacket fragment)
+        {
+            byte[] fullPacket = new byte[600000]; //todo better to know size of the packet
+            int offset = 0;
+
+            foreach (var part in fragment.Fragments)
+            {
+                if (part != null)
+                {
+                    Array.Copy(part, 0, fullPacket, offset, part.Length);
+                    offset += part.Length;
+                }
+            }
+
+            return fullPacket;
+        }
+
+        private static void ProcessReassembledPacket(byte[] packet)
+        {
+            PacketDecoder.packetBuffers.Add(packet);
         }
 
         public static void ReliabilityHandler(

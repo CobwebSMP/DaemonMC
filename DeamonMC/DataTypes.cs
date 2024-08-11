@@ -39,6 +39,13 @@ namespace DeamonMC
             PacketEncoder.writeOffset += 4;
         }
 
+        public static uint ReadUInt(byte[] buffer)
+        {
+            uint value = BitConverter.ToUInt32(buffer, PacketDecoder.readOffset);
+            PacketDecoder.readOffset += 4;
+            return value;
+        }
+
         public static void WriteFloat(float value)
         {
             byte[] bytes = BitConverter.GetBytes(value);
@@ -100,6 +107,20 @@ namespace DeamonMC
             return value;
         }
 
+        public static void WriteShort(ushort value)
+        {
+            PacketEncoder.byteStream[PacketEncoder.writeOffset] = (byte)value;
+            PacketEncoder.byteStream[PacketEncoder.writeOffset + 1] = (byte)(value >> 8);
+            PacketEncoder.writeOffset += 2;
+        }
+
+        public static short ReadShortBE(byte[] buffer)
+        {
+            short value = (short)(buffer[PacketDecoder.readOffset + 1] | (buffer[PacketDecoder.readOffset] << 8));
+            PacketDecoder.readOffset += 2;
+            return value;
+        }
+
         public static void WriteShortBE(ushort value)
         {
             PacketEncoder.byteStream[PacketEncoder.writeOffset] = (byte)(value >> 8);
@@ -107,11 +128,11 @@ namespace DeamonMC
             PacketEncoder.writeOffset += 2;
         }
 
-        public static void WriteShort(ushort value)
+        public static ushort ReadUShort(byte[] buffer)
         {
-            PacketEncoder.byteStream[PacketEncoder.writeOffset] = (byte)value;
-            PacketEncoder.byteStream[PacketEncoder.writeOffset + 1] = (byte)(value >> 8);
-            PacketEncoder.writeOffset += 2;
+            ushort value = (ushort)((buffer[PacketDecoder.readOffset] << 8) | buffer[PacketDecoder.readOffset + 1]);
+            PacketDecoder.readOffset += 2;
+            return value;
         }
 
         public static byte ReadByte(byte[] buffer)

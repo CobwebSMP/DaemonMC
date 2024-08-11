@@ -21,7 +21,7 @@ namespace DeamonMC.Network.RakNet
         public static void Decode(byte[] buffer)
         {
             var ACKs = new List<ACKdata>();
-            var count = DataTypes.ReadShort(buffer);
+            var count = DataTypes.ReadShortBE(buffer);
             for (int i = 0; i < count; ++i)
             {
                 var ACK = new ACKdata();
@@ -48,10 +48,10 @@ namespace DeamonMC.Network.RakNet
         public static void Encode(ACKPacket fields)
         {
             DataTypes.WriteByte(id);
-            DataTypes.WriteShort(1);
+            DataTypes.WriteShortBE(1);
             DataTypes.WriteBool(true);
             DataTypes.WriteUInt24LE(fields.ACKs[0].sequenceNumber);
-            PacketEncoder.handlePacket();
+            PacketEncoder.SendPacket(id);
         }
     }
 }

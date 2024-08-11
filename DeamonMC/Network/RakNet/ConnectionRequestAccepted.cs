@@ -29,7 +29,7 @@
             DataTypes.WriteAddress(); //todo
             DataTypes.WriteShort(0);
 
-            for (int i = 0; i < 40; ++i)
+            for (int i = 0; i < 20; ++i)
             {
                 DataTypes.WriteAddress(); //todo
             }

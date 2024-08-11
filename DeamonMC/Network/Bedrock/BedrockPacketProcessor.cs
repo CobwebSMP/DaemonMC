@@ -1,4 +1,5 @@
 ﻿using DeamonMC.Network.RakNet;
+using DeamonMC.Utils;
 using DeamonMC.Utils.Text;
 
 namespace DeamonMC.Network.Bedrock
@@ -27,7 +28,9 @@ namespace DeamonMC.Network.Bedrock
 
         public static void Login(LoginPacket packet)
         {
-            Log.info($"net vers {packet.protocolVersion} ");
+            //Log.debug($"net vers {packet.protocolVersion} ");
+            Log.debug("Got JWT data");
+            Log.info(packet.request);
         }
 
         public static void PacketViolationWarning(PacketViolationWarningPacket packet)
