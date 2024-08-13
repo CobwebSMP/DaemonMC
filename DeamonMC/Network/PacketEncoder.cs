@@ -29,7 +29,19 @@ namespace DeamonMC.Network
                     byteStream = new byte[1024];
                     Reliability.ReliabilityHandler(newtrimmedBuffer);
                     //DataTypes.HexDump(newtrimmedBuffer, newtrimmedBuffer.Length);
+                    return;
                 }
+            }
+            if (type == "bedrock")
+            {
+                byte[] header = { 254, (byte)writeOffset };
+                byte[] newtrimmedBuffer = new byte[trimmedBuffer.Length + header.Length];
+                Array.Copy(header, 0, newtrimmedBuffer, 0, header.Length);
+                Array.Copy(trimmedBuffer, 0, newtrimmedBuffer, header.Length, trimmedBuffer.Length);
+                writeOffset = 0;
+                byteStream = new byte[1024];
+                Reliability.ReliabilityHandler(newtrimmedBuffer);
+                return;
             }
             writeOffset = 0;
             byteStream = new byte[1024];

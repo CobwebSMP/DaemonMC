@@ -18,8 +18,6 @@ namespace DeamonMC.Network.Bedrock
 
         public static void Encode(DisconnectPacket fields)
         {
-            DataTypes.WriteByte(254);
-            DataTypes.WriteByte(12);
             DataTypes.WriteVarInt(id);
             DataTypes.WriteVarInt(0);
             DataTypes.WriteBool(false);

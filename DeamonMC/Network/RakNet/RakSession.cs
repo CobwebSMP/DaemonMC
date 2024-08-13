@@ -4,6 +4,7 @@
     {
         public long GUID { get; set; }
         public bool initCompression { get; set; }
+        public string username { get; set; }
 
         public RakSession(long guid, bool compression = false)
         {

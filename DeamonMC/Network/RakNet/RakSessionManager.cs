@@ -5,7 +5,7 @@ namespace DeamonMC.Network.RakNet
 {
     public class RakSessionManager
     {
-        private static Dictionary<IPEndPoint, RakSession> sessions = new Dictionary<IPEndPoint, RakSession>();
+        public static Dictionary<IPEndPoint, RakSession> sessions = new Dictionary<IPEndPoint, RakSession>();
 
         public static void addSession(IPEndPoint ip, long guid)
         {

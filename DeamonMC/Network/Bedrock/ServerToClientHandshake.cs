@@ -1,0 +1,25 @@
+﻿using DeamonMC.Utils;
+
+namespace DeamonMC.Network.Bedrock
+{
+    public class ServerToClientHandshakePacket
+    {
+        public string JWT { get; set; }
+    }
+
+    public class ServerToClientHandshake
+    {
+        public static byte id = 3;
+        public static void Decode(byte[] buffer)
+        {
+
+        }
+
+        public static void Encode(ServerToClientHandshakePacket fields)
+        {
+            DataTypes.WriteVarInt(id);
+            DataTypes.WriteString(fields.JWT);
+            PacketEncoder.handlePacket("bedrock");
+        }
+    }
+}
