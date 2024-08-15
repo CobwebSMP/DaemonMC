@@ -1,11 +1,14 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
-using System.Reflection.PortableExecutable;
 using System.Security.Cryptography;
 using System.Text;
 using DeamonMC.Network.RakNet;
 using DeamonMC.Utils.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Org.BouncyCastle.Crypto.Generators;
+using Org.BouncyCastle.Crypto.Parameters;
+using Org.BouncyCastle.Security;
+using Org.BouncyCastle.X509;
 namespace DeamonMC.Utils
 {
     public class JWTObject
@@ -22,21 +25,17 @@ namespace DeamonMC.Utils
             var player = RakSessionManager.sessions[Server.clientEp];
             JWTObject decodedObject = JsonConvert.DeserializeObject<JWTObject>(jsonString);
             var handler = new JwtSecurityTokenHandler();
-            string identityPublicKey = null;
+
             foreach (var jwtToken in decodedObject.Chain)
             {
                 var jsonToken = handler.ReadToken(jwtToken) as JwtSecurityToken;
+                var x5u = jsonToken.Header["x5u"].ToString();
+
                 if (jsonToken != null)
                 {
-                    var publicKeyClaim = jsonToken.Claims.FirstOrDefault(claim => claim.Type == "identityPublicKey");
-                    if (publicKeyClaim != null)
+                    if (x5u == RootKey)
                     {
-                        if (publicKeyClaim.Value == RootKey)
-                        {
-                            Log.debug("Got certificate");
-                            identityPublicKey = publicKeyClaim.Value;
-                            Log.debug("Mojang RootKey: OK");
-                        }
+                        Log.debug("Mojang RootKey: OK");
                     }
 
                     var extraDataClaim = jsonToken.Claims.FirstOrDefault(claim => claim.Type == "extraData");
@@ -44,6 +43,7 @@ namespace DeamonMC.Utils
                     {
                         ExtraData extraData = JsonConvert.DeserializeObject<ExtraData>(extraDataClaim.Value);
                         player.username = extraData.displayName;
+                        player.identity = extraData.identity;
                     }
                     else
                     {
@@ -60,7 +60,8 @@ namespace DeamonMC.Utils
         public static void processJWTtoken(string rawToken)
         {
             var player = RakSessionManager.sessions[Server.clientEp];
-            string[] tokenParts = rawToken.Split('.');
+            int index = rawToken.IndexOf("ey");
+            string[] tokenParts = rawToken.Substring(index).Split('.');
 
             string headerJson = DecodeBase64Url(tokenParts[0]);
             string payloadJson = DecodeBase64Url(tokenParts[1]);
@@ -72,12 +73,60 @@ namespace DeamonMC.Utils
 
             Log.debug($"Public Key (x5u): {publicKey}");
             Log.info($"{player.username} with client version {payload.GameVersion} doing login...");
+        }
 
-            //Console.WriteLine("JWT Header:");
-            // Console.WriteLine(JsonConvert.SerializeObject(headerJson, Formatting.Indented));
+        public static string createJWT()
+        {
+            ECPublicKeyParameters rootECKey = (ECPublicKeyParameters) PublicKeyFactory.CreateKey(Convert.FromBase64String(RootKey));
 
-            //Console.WriteLine("JWT Payload:");
-            //Console.WriteLine(payloadJson);
+            var generator = new ECKeyPairGenerator("ECDH");
+            generator.Init(new ECKeyGenerationParameters(rootECKey.PublicKeyParamSet, SecureRandom.GetInstance("SHA256PRNG")));
+            var keyPair = generator.GenerateKeyPair();
+
+            ECPublicKeyParameters publicECKey = (ECPublicKeyParameters)keyPair.Public;
+            ECPrivateKeyParameters privateECKey = (ECPrivateKeyParameters)keyPair.Private;
+
+            var base64PublicKey = Convert.ToBase64String(SubjectPublicKeyInfoFactory.CreateSubjectPublicKeyInfo(publicECKey).GetEncoded());
+
+            var header = new Dictionary<string, object>
+            {
+                {"alg", "ES384"},
+                {"typ", "JWT"},
+                {"x5u", base64PublicKey}
+            };
+
+            var handshakeJson = new
+            {
+                salt = GenerateSalt(),
+                signedToken = ""
+            };
+
+            string payloadJson = JsonConvert.SerializeObject(handshakeJson);
+
+            string encodedHeader = EncodeBase64Url(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(header)));
+            string encodedPayload = EncodeBase64Url(Encoding.UTF8.GetBytes(payloadJson));
+
+            var signEC = new ECParameters
+            {
+                Curve = ECCurve.NamedCurves.nistP384,
+                Q =
+                    {
+                        X = publicECKey.Q.AffineXCoord.GetEncoded(),
+                        Y = publicECKey.Q.AffineYCoord.GetEncoded()
+                    }
+                };
+            signEC.D = (privateECKey.D.ToByteArrayUnsigned());
+
+            var signKey = ECDsa.Create(signEC);
+
+            string dataToSign = $"{encodedHeader}.{encodedPayload}";
+            byte[] signatureBytes = SignData(signKey, dataToSign);
+
+            string encodedSignature = EncodeBase64Url(signatureBytes);
+
+            Log.debug($"Encrypted connection established with {RakSessionManager.sessions[Server.clientEp].username}");
+
+            return $"{encodedHeader}.{encodedPayload}.{encodedSignature}";
         }
 
         private static string DecodeBase64Url(string base64Url)
@@ -93,6 +142,14 @@ namespace DeamonMC.Utils
             return Encoding.UTF8.GetString(data);
         }
 
+        public static string EncodeBase64Url(byte[] input)
+        {
+            return Convert.ToBase64String(input)
+                .TrimEnd('=')
+                .Replace('+', '-')
+                .Replace('/', '_');
+        }
+
         private static string GenerateSalt()
         {
             var random = new byte[32];
@@ -101,6 +158,12 @@ namespace DeamonMC.Utils
                 rng.GetBytes(random);
             }
             return Convert.ToBase64String(random);
+        }
+
+        private static byte[] SignData(ECDsa privateKey, string data)
+        {
+            byte[] dataBytes = Encoding.UTF8.GetBytes(data);
+            return privateKey.SignData(dataBytes, HashAlgorithmName.SHA384);
         }
     }
 }

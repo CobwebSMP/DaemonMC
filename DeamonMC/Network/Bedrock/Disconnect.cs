@@ -5,7 +5,7 @@ namespace DeamonMC.Network.Bedrock
 {
     public class DisconnectPacket
     {
-
+        public string message { get; set; }
     }
 
     public class Disconnect
@@ -21,7 +21,8 @@ namespace DeamonMC.Network.Bedrock
             DataTypes.WriteVarInt(id);
             DataTypes.WriteVarInt(0);
             DataTypes.WriteBool(false);
-            DataTypes.WriteString("test");
+            DataTypes.WriteString(fields.message);
+            DataTypes.WriteString("");
             PacketEncoder.handlePacket("bedrock");
         }
     }

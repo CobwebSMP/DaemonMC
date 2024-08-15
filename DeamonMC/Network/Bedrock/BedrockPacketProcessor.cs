@@ -20,40 +20,37 @@ namespace DeamonMC.Network.Bedrock
                 clientThrottleThreshold = 0
             };
             NetworkSettings.Encode(pk);
-            //RakSessionManager.Compression(Server.clientEp, true);
-            /*var pk2 = new DisconnectPacket
-            {
-
-            };
-            Disconnect.Encode(pk2);*/
+            RakSessionManager.Compression(Server.clientEp, true);
         }
 
         public static void Login(LoginPacket packet)
         {
-            //Log.info(packet.protocolVersion.ToString());
-            //Log.info(packet.request);
             byte[] jwtBuffer = Encoding.UTF8.GetBytes(packet.request);
-            int CertificateChainSize = BitConverter.ToInt32(jwtBuffer, 0);
-           // Log.info(CertificateChainSize.ToString());
-            string CertificateChain = Encoding.UTF8.GetString(jwtBuffer, 4, CertificateChainSize);
-            //Log.info(TokenSize.ToString());
-            string Token = Encoding.UTF8.GetString(jwtBuffer, CertificateChainSize + 12, jwtBuffer.Length - (CertificateChainSize + 12)); //weird way but .. maybe later
 
-            //Log.debug("Raw CertificateChain:");
-            //Log.debug(CertificateChain);
+            var filteredJWT = new string(packet.request.Where(c => c >= 32 && c <= 126).ToArray());
+            int jsonEndIndex = filteredJWT.LastIndexOf('}');
+            if (jsonEndIndex >= 0)
+            {
+                filteredJWT = filteredJWT.Substring(0, jsonEndIndex + 1);
+            }
+            string Token = Encoding.UTF8.GetString(jwtBuffer, filteredJWT.Length + 8, jwtBuffer.Length - (filteredJWT.Length + 8));
 
-            //Log.debug("Raw Token");
-            JWT.processJWTchain(CertificateChain);
+            JWT.processJWTchain(filteredJWT);
             JWT.processJWTtoken(Token);
-            /*
-             var jwt = JWT.processJWTchain(filteredJWT);
-             Log.debug("Signed chain:");
-            // Log.debug(jwt);
-             var pk = new ServerToClientHandshakePacket
-             {
-                 JWT = jwt,
-             };
-             ServerToClientHandshake.Encode(pk);*/
+
+            var jwt = JWT.createJWT();
+
+            var pk = new ServerToClientHandshakePacket
+            {
+                JWT = jwt,
+            };
+            //ServerToClientHandshake.Encode(pk);
+
+            var pk1 = new DisconnectPacket
+            {
+                message = $"Yayy hi {RakSessionManager.sessions[Server.clientEp].username}. JWT works! That's all for now."
+            };
+            Disconnect.Encode(pk1);
         }
 
         public static void PacketViolationWarning(PacketViolationWarningPacket packet)

@@ -8,8 +8,4 @@
         public string titleId { get; set; }
         public string sandboxId { get; set; }
     }
-
-    public class CertificateChain
-    {
-    }
 }

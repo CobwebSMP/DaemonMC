@@ -16,30 +16,32 @@ namespace DeamonMC.Network
             byte[] trimmedBuffer = new byte[writeOffset];
             Array.Copy(byteStream, trimmedBuffer, writeOffset);
             if (type == "") { Log.debug($"[Server] --> [{Server.clientEp.Address,-16}:{Server.clientEp.Port}] {(Info.RakNet)trimmedBuffer[0]}"); };
-            if (type == "bedrock") { PacketDecoder.readOffset = 2; Log.debug($"[Server] --> [{Server.clientEp.Address,-16}:{Server.clientEp.Port}] {(Info.Bedrock)DataTypes.ReadVarInt(trimmedBuffer)}"); };
-            if (RakSessionManager.getSession(Server.clientEp) != null)
-            {
-                if (RakSessionManager.getSession(Server.clientEp).initCompression)
-                {
-                    byte[] header = { 255, 254, (byte)writeOffset };
-                    byte[] newtrimmedBuffer = new byte[trimmedBuffer.Length + header.Length];
-                    Array.Copy(header, 0, newtrimmedBuffer, 0, header.Length);
-                    Array.Copy(trimmedBuffer, 0, newtrimmedBuffer, header.Length, trimmedBuffer.Length);
-                    writeOffset = 0;
-                    byteStream = new byte[1024];
-                    Reliability.ReliabilityHandler(newtrimmedBuffer);
-                    //DataTypes.HexDump(newtrimmedBuffer, newtrimmedBuffer.Length);
-                    return;
-                }
-            }
+            if (type == "bedrock") { PacketDecoder.readOffset = 0; Log.debug($"[Server] --> [{Server.clientEp.Address,-16}:{Server.clientEp.Port}] {(Info.Bedrock)DataTypes.ReadVarInt(trimmedBuffer)}"); };
             if (type == "bedrock")
             {
-                byte[] header = { 254, (byte)writeOffset };
+                byte[] bedrockId = new byte[] { 254 };
+
+                if (RakSessionManager.getSession(Server.clientEp) != null)
+                {
+                    if (RakSessionManager.getSession(Server.clientEp).initCompression)
+                    {
+                        bedrockId = new byte[] { 254, 255 };
+                    }
+                }
+
+                byte[] lengthVarInt = ToDataTypes.GetVarint(writeOffset);
+
+                byte[] header = new byte[bedrockId.Length + lengthVarInt.Length];
+                Array.Copy(bedrockId, 0, header, 0, bedrockId.Length);
+                Array.Copy(lengthVarInt, 0, header, bedrockId.Length, lengthVarInt.Length);
+
                 byte[] newtrimmedBuffer = new byte[trimmedBuffer.Length + header.Length];
                 Array.Copy(header, 0, newtrimmedBuffer, 0, header.Length);
                 Array.Copy(trimmedBuffer, 0, newtrimmedBuffer, header.Length, trimmedBuffer.Length);
+
                 writeOffset = 0;
                 byteStream = new byte[1024];
+
                 Reliability.ReliabilityHandler(newtrimmedBuffer);
                 return;
             }
