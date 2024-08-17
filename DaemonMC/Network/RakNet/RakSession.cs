@@ -9,6 +9,7 @@ namespace DaemonMC.Network.RakNet
         public string username { get; set; }
         public string identity { get; set; }
         public IBufferedCipher decryptor { get; set; }
+        public long EntityID { get; set; }
 
         public RakSession(long guid, bool compression = false)
         {

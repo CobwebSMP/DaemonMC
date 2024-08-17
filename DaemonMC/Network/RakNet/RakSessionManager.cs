@@ -16,6 +16,10 @@ namespace DaemonMC.Network.RakNet
             }
             sessions.Add(ip, new RakSession(guid));
         }
+        public static RakSession getCurrentSession()
+        {
+            return getSession(Server.clientEp);
+        }
 
         public static RakSession getSession(IPEndPoint ip)
         {
@@ -32,6 +36,7 @@ namespace DaemonMC.Network.RakNet
 
         public static void deleteSession(IPEndPoint ip)
         {
+            Server.RemovePlayer(getSession(Server.clientEp).EntityID);
             if (!sessions.Remove(ip))
             {
                 Log.warn($"Couldn't delete session for {ip.Address.ToString()}, session doesn't exist.");

@@ -75,7 +75,7 @@ namespace DaemonMC.Network.Bedrock
 
         public static void ClientCacheStatus(ClientCacheStatusPacket packet)
         {
-            var player = RakSessionManager.sessions[Server.clientEp];
+            var player = RakSessionManager.getCurrentSession();
             Log.debug($"{player.username} ClientCacheStatus = {packet.status}");
         }
 
@@ -92,7 +92,19 @@ namespace DaemonMC.Network.Bedrock
             }
             else if (packet.response == 4) //start game
             {
+                var session = RakSessionManager.getCurrentSession();
 
+                Player player = new Player();
+                player.username = session.username;
+
+                long EntityId = Server.AddPlayer(player);
+                session.EntityID = EntityId;
+
+                var pk1 = new DisconnectPacket
+                {
+                    message = $"Yayy hi {RakSessionManager.sessions[Server.clientEp].username}. All works, your entity id is {EntityId}! That's all for now. Start game packets coming soon."
+                };
+                Disconnect.Encode(pk1);
             }
         }
     }

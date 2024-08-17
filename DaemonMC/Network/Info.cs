@@ -14,6 +14,7 @@
             ResourcePacksInfo = 6,
             ResourcePackStack = 7,
             ResourcePackClientResponse = 8,
+            StartGamePacket = 11,
             ClientCacheStatus = 129,
             NetworkSettings = 143,                //0xc1
             PacketViolationWarningPacket = 156,   //

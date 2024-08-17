@@ -26,7 +26,7 @@ namespace DaemonMC.Utils
 
         public static void processJWTchain(string jsonString)
         {
-            var player = RakSessionManager.sessions[Server.clientEp];
+            var player = RakSessionManager.getCurrentSession();
             JWTObject decodedObject = JsonConvert.DeserializeObject<JWTObject>(jsonString);
             var handler = new JwtSecurityTokenHandler();
 
@@ -63,7 +63,7 @@ namespace DaemonMC.Utils
 
         public static void processJWTtoken(string rawToken)
         {
-            var player = RakSessionManager.sessions[Server.clientEp];
+            var player = RakSessionManager.getCurrentSession();
             int index = rawToken.IndexOf("ey");
             string[] tokenParts = rawToken.Substring(index).Split('.');
 
@@ -81,7 +81,7 @@ namespace DaemonMC.Utils
 
         public static string createJWT()
         {
-            var player = RakSessionManager.sessions[Server.clientEp];
+            var player = RakSessionManager.getCurrentSession();
 
             ECPublicKeyParameters rootECKey = (ECPublicKeyParameters) PublicKeyFactory.CreateKey(Convert.FromBase64String(RootKey));
 
