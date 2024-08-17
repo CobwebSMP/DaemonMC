@@ -1,5 +1,4 @@
 ﻿using DaemonMC.Utils;
-
 namespace DaemonMC.Network.Bedrock
 {
     public class ServerToClientHandshakePacket

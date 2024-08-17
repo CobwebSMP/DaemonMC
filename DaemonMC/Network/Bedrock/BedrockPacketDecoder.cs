@@ -1,5 +1,6 @@
 ﻿using DaemonMC.Network.RakNet;
 using DaemonMC.Utils.Text;
+using Org.BouncyCastle.Crypto;
 
 namespace DaemonMC.Network.Bedrock
 {
@@ -7,22 +8,23 @@ namespace DaemonMC.Network.Bedrock
     {
         public static void BedrockDecoder(byte[] buffer)
         {
-           DataTypes.ReadVarInt(buffer); //packet size
-           if (RakSessionManager.getSession(Server.clientEp).initCompression)
-           {
-               /* var compression = DataTypes.ReadByte(buffer); //compression type
-                Log.info(compression.ToString());
-                try
+            if (RakSessionManager.getSession(Server.clientEp) != null)
+            {
+                if (RakSessionManager.getSession(Server.clientEp).decryptor != null)
                 {
-                    var snappy = new SnappyDecompressor();
-                    byte[] decompressedData = snappy.Decompress(buffer, 1, buffer.Length-1);
-                    buffer = decompressedData;
+                    ReadOnlyMemory<byte> payload = buffer.AsMemory();
+                    DataTypes.HexDump(buffer, buffer.Length);
+                    buffer = buffer.Skip(1).ToArray();
+                    DataTypes.HexDump(buffer, buffer.Length);
+                    buffer = Decrypt(payload, RakSessionManager.getSession(Server.clientEp).decryptor).ToArray();
+                    DataTypes.HexDump(buffer, buffer.Length);
                 }
-                catch (Exception ex)
+                if (RakSessionManager.getSession(Server.clientEp).initCompression)
                 {
-                    Log.error("An error occurred during decompression: " + ex.Message);
-                }*/
+                    DataTypes.ReadByte(buffer);
+                }
             }
+            DataTypes.ReadVarInt(buffer); //packet size
             var pkid = DataTypes.ReadVarInt(buffer);
             Log.debug($"[Server] <-- [{Server.clientEp.Address,-16}:{Server.clientEp.Port}] {(Info.Bedrock)pkid}");
 
@@ -37,10 +39,33 @@ namespace DaemonMC.Network.Bedrock
                 case PacketViolationWarning.id:
                     PacketViolationWarning.Decode(buffer);
                     break;
+                case ClientCacheStatus.id:
+                    ClientCacheStatus.Decode(buffer);
+                    break;
+                case ResourcePackClientResponse.id:
+                    ResourcePackClientResponse.Decode(buffer);
+                    break;
+
                 default:
                     Log.error($"[Server] Unknown Bedrock packet: {pkid}");
+                    DataTypes.HexDump(buffer, buffer.Length);
                     break;
             }
+        }
+
+        public static ReadOnlyMemory<byte> Decrypt(ReadOnlyMemory<byte> payload, IBufferedCipher decryptor)
+        {
+            byte[] decrypted = decryptor.DoFinal(payload.ToArray());
+            if (decryptor == null)
+            {
+                Log.error("Decryptor is not set up.");
+            }
+            if (decrypted == null)
+            {
+                Log.error("Decryption failed. Decrypted == null.");
+            }
+            Log.info(decrypted.Length.ToString());
+            return decrypted.AsMemory().Slice(0, decrypted.Length - 8);
         }
     }
 }

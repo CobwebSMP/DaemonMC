@@ -1,6 +1,4 @@
-﻿using DaemonMC.Utils.Text;
-
-namespace DaemonMC.Network.RakNet
+﻿namespace DaemonMC.Network.RakNet
 {
     public class RakPacketProcessor
     {
@@ -11,7 +9,7 @@ namespace DaemonMC.Network.RakNet
                 Time = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
                 GUID = 1234567890123456789,
                 Magic = "00ffff00fefefefefdfdfdfd12345678",
-                MOTD = $"MCPE;DaemonMC;100;{DaemonMC.version};0;{DaemonMC.maxOnline};12345678912345678912;World;Survival;1;19132;19133;"
+                MOTD = $"MCPE;DaemonMC;100;{Info.version};0;{DaemonMC.maxOnline};12345678912345678912;World;Survival;1;19132;19133;"
             };
             UnconnectedPong.Encode(pk);
         }

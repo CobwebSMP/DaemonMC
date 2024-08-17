@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace DaemonMC.Network.RakNet
+﻿namespace DaemonMC.Network.RakNet
 {
     public class OpenConnectionReply2Packet
     {

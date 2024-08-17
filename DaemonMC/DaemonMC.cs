@@ -1,15 +1,11 @@
 ﻿using DaemonMC.Utils.Text;
-using YamlDotNet.Serialization.NamingConventions;
-using YamlDotNet.Serialization;
-using Org.BouncyCastle.Tls;
+using DaemonMC.Network;
 
 namespace DaemonMC
 {
     public static class DaemonMC
     {
         public static string servername = "DaemonMC";
-        public static string version = "1.21.20";
-        public static int protocolVersion = 705;
         public static string maxOnline = "10";
         public static void Main()
         {
@@ -20,7 +16,7 @@ namespace DaemonMC
             Console.WriteLine("| |__/ ( ( | ( (/ /| | | | |_| | | | | || || | \\_____ ");
             Console.WriteLine("|_____/ \\_||_|\\____)_|_|_|\\___/|_| |_|_||_||_|\\______)");
             Console.WriteLine("");
-            Log.info($"Setting up server for {maxOnline} players with Minecraft {version}");
+            Log.info($"Setting up server for {maxOnline} players with Minecraft {Info.version}");
 
             Config.Set();
             //Console.WriteLine("Choose DaemonMC mode");

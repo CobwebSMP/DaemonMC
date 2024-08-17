@@ -9,6 +9,10 @@ using Org.BouncyCastle.Crypto.Generators;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Security;
 using Org.BouncyCastle.X509;
+using Org.BouncyCastle.Crypto.Agreement;
+using Org.BouncyCastle.Crypto.Engines;
+using Org.BouncyCastle.Crypto.Modes;
+using Org.BouncyCastle.Crypto;
 namespace DaemonMC.Utils
 {
     public class JWTObject
@@ -77,6 +81,8 @@ namespace DaemonMC.Utils
 
         public static string createJWT()
         {
+            var player = RakSessionManager.sessions[Server.clientEp];
+
             ECPublicKeyParameters rootECKey = (ECPublicKeyParameters) PublicKeyFactory.CreateKey(Convert.FromBase64String(RootKey));
 
             var generator = new ECKeyPairGenerator("ECDH");
@@ -101,6 +107,19 @@ namespace DaemonMC.Utils
                 signedToken = ""
             };
 
+            var agreement = new ECDHBasicAgreement();
+            agreement.Init(privateECKey);
+
+            byte[] secretPrepend = Encoding.UTF8.GetBytes(handshakeJson.salt); 
+            byte[] sharedSecret = agreement.CalculateAgreement(rootECKey).ToByteArrayUnsigned();
+            byte[] saltHash;
+            using (SHA256 sha256 = SHA256.Create())
+            {
+                saltHash = sha256.ComputeHash(secretPrepend.Concat(sharedSecret).ToArray());
+            }
+
+            Log.debug($"saltHash {Convert.ToBase64String(saltHash)}");
+
             string payloadJson = JsonConvert.SerializeObject(handshakeJson);
 
             string encodedHeader = EncodeBase64Url(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(header)));
@@ -123,6 +142,16 @@ namespace DaemonMC.Utils
             byte[] signatureBytes = SignData(signKey, dataToSign);
 
             string encodedSignature = EncodeBase64Url(signatureBytes);
+            var aesEngine = new AesEngine();
+            var sicBlockCipher = new SicBlockCipher(aesEngine);
+
+            var cipher = new BufferedBlockCipher(sicBlockCipher);
+
+            byte[] iv = saltHash.Take(12).Concat(new byte[] { 0, 0, 0, 2 }).ToArray();
+
+            cipher.Init(false, new ParametersWithIV(new KeyParameter(saltHash), iv));
+
+            player.decryptor = cipher;
 
             Log.debug($"Encrypted connection established with {RakSessionManager.sessions[Server.clientEp].username}");
 

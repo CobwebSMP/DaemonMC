@@ -2,6 +2,24 @@
 {
     public class Info
     {
+        public static string version = "1.21.20";
+        public static int protocolVersion = 705;
+
+        public enum Bedrock
+        {
+            Login = 1,                            //0x01
+            PlayStatus = 2,
+            ServerToClientHandshake = 3,
+            Disconnect = 5,                       //0x05
+            ResourcePacksInfo = 6,
+            ResourcePackStack = 7,
+            ResourcePackClientResponse = 8,
+            ClientCacheStatus = 129,
+            NetworkSettings = 143,                //0xc1
+            PacketViolationWarningPacket = 156,   //
+            RequestNetworkSettings = 193,         //0x8F
+        }
+
         public enum RakNet
         {
             ConnectedPing = 0,                    //0x00
@@ -18,16 +36,6 @@
             UnconnectedPong = 28,                 //0x1c
             NACK = 160,                           //0xa0
             ACK = 192,                            //0xc0
-        }
-
-        public enum Bedrock
-        {
-            Login = 1,                            //0x01
-            ServerToClientHandshake = 3,
-            Disconnect = 5,                       //0x05
-            NetworkSettings = 143,                //0xc1
-            PacketViolationWarningPacket = 156,   //
-            RequestNetworkSettings = 193,         //0x8F
         }
     }
 }

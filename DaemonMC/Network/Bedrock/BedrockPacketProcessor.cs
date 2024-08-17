@@ -1,5 +1,4 @@
-﻿using System;
-using System.Text;
+﻿using System.Text;
 using DaemonMC.Network.RakNet;
 using DaemonMC.Utils;
 using DaemonMC.Utils.Text;
@@ -38,25 +37,63 @@ namespace DaemonMC.Network.Bedrock
             JWT.processJWTchain(filteredJWT);
             JWT.processJWTtoken(Token);
 
-            var jwt = JWT.createJWT();
-
-            var pk = new ServerToClientHandshakePacket
+            var encrypt = false;
+            if (encrypt)
             {
-                JWT = jwt,
-            };
-            //ServerToClientHandshake.Encode(pk);
-
-            var pk1 = new DisconnectPacket
+                var jwt = JWT.createJWT();
+                var pk = new ServerToClientHandshakePacket
+                {
+                    JWT = jwt,
+                };
+                ServerToClientHandshake.Encode(pk);
+            }
+            else
             {
-                message = $"Yayy hi {RakSessionManager.sessions[Server.clientEp].username}. JWT works! That's all for now."
-            };
-            Disconnect.Encode(pk1);
+                var pk = new PlayStatusPacket
+                {
+                    status = 0,
+                };
+                PlayStatus.Encode(pk);
+
+                var pk2 = new ResourcePacksInfoPacket
+                {
+                    force = false,
+                    isAddon = false,
+                    hasScripts = false,
+                    forceServerPacks = false
+
+                };
+                ResourcePacksInfo.Encode(pk2);
+            }
         }
 
         public static void PacketViolationWarning(PacketViolationWarningPacket packet)
         {
             Log.error($"Client reported that server sent failed packet '{(Info.Bedrock)packet.packetId}'");
             Log.error(packet.description);
+        }
+
+        public static void ClientCacheStatus(ClientCacheStatusPacket packet)
+        {
+            var player = RakSessionManager.sessions[Server.clientEp];
+            Log.debug($"{player.username} ClientCacheStatus = {packet.status}");
+        }
+
+        public static void ResourcePackClientResponse(ResourcePackClientResponsePacket packet)
+        {
+            Log.debug($"ResourcePackClientResponse = {packet.response}");
+            if (packet.response == 3)
+            {
+                var pk = new ResourcePackStackPacket
+                {
+                    forceTexturePack = false,
+                };
+                ResourcePackStack.Encode(pk);
+            }
+            else if (packet.response == 4) //start game
+            {
+
+            }
         }
     }
 }
