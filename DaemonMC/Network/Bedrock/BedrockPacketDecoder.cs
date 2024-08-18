@@ -45,6 +45,9 @@ namespace DaemonMC.Network.Bedrock
                 case ResourcePackClientResponse.id:
                     ResourcePackClientResponse.Decode(buffer);
                     break;
+                case RequestChunkRadius.id:
+                    RequestChunkRadius.Decode(buffer);
+                    break;
 
                 default:
                     Log.error($"[Server] Unknown Bedrock packet: {pkid}");

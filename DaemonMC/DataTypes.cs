@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Text;
 using DaemonMC.Network;
+using fNbt;
+using Org.BouncyCastle.Utilities;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace DaemonMC
 {
@@ -100,6 +103,12 @@ namespace DaemonMC
             PacketEncoder.byteStream[PacketEncoder.writeOffset++] = (byte)(value & 127);
         }
 
+        public static void WriteSignedVarInt(int value)
+        {
+            uint zigzagEncoded = (uint)((value << 1) ^ (value >> 31));
+            WriteVarInt((int)zigzagEncoded);
+        }
+
         public static short ReadShort(byte[] buffer)
         {
             short value = (short)((buffer[PacketDecoder.readOffset] << 8) | buffer[PacketDecoder.readOffset + 1]);
@@ -146,6 +155,12 @@ namespace DaemonMC
         {
             PacketEncoder.byteStream[PacketEncoder.writeOffset] = value;
             PacketEncoder.writeOffset += 1;
+        }
+
+        private static void WriteBytes(byte[] data)
+        {
+            Array.Copy(data, 0, PacketEncoder.byteStream, PacketEncoder.writeOffset, data.Length);
+            PacketEncoder.writeOffset += data.Length;
         }
 
         public static long ReadLong(byte[] buffer)
@@ -335,6 +350,46 @@ namespace DaemonMC
             PacketEncoder.byteStream[PacketEncoder.writeOffset + 1] = (byte)((value >> 8) & 0xFF);
             PacketEncoder.byteStream[PacketEncoder.writeOffset + 2] = (byte)((value >> 16) & 0xFF);
             PacketEncoder.writeOffset += 3;
+        }
+
+        public static void WriteVarLong(ulong value)
+        {
+            while ((value & ~0x7FUL) != 0)
+            {
+                PacketEncoder.byteStream[PacketEncoder.writeOffset++] = (byte)((value & 0x7FUL) | 0x80UL);
+                value >>= 7;
+            }
+            PacketEncoder.byteStream[PacketEncoder.writeOffset++] = (byte)(value & 0x7FUL);
+        }
+
+        public static void WriteSignedVarLong(long value)
+        {
+            ulong zigzagEncoded = (ulong)((value << 1) ^ (value >> 63));
+            WriteVarLong(zigzagEncoded);
+        }
+
+        public static void WriteCompoundTag(NbtCompound compoundTag)
+        {
+            NbtFile file = new NbtFile(compoundTag);
+
+            file.BigEndian = false;
+            file.UseVarInt = true;
+
+            byte[] serializedTag = file.SaveToBuffer(NbtCompression.None);
+
+            Array.Copy(serializedTag, 0, PacketEncoder.byteStream, PacketEncoder.writeOffset, serializedTag.Length);
+
+            PacketEncoder.writeOffset += serializedTag.Length;
+        }
+
+        public static void WriteUUID(Guid uuid)
+        {
+            byte[] uuidBytes = uuid.ToByteArray();
+            byte[] mostSignificantBits = uuidBytes.Take(8).Reverse().ToArray();
+            byte[] leastSignificantBits = uuidBytes.Skip(8).Take(8).Reverse().ToArray();
+
+            WriteBytes(mostSignificantBits);
+            WriteBytes(leastSignificantBits);
         }
 
         public static void HexDump(byte[] buffer, int lenght)

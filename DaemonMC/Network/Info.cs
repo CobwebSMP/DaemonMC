@@ -14,9 +14,14 @@
             ResourcePacksInfo = 6,
             ResourcePackStack = 7,
             ResourcePackClientResponse = 8,
-            StartGamePacket = 11,
+            StartGame = 11,
+            LevelChunkPacket = 58,
+            RequestChunkRadius = 69,
+            ChunkRadiusUpdated = 70,
+            BiomeDefinitionList = 122,
             ClientCacheStatus = 129,
             NetworkSettings = 143,                //0xc1
+            CreativeContent = 145,
             PacketViolationWarningPacket = 156,   //
             RequestNetworkSettings = 193,         //0x8F
         }

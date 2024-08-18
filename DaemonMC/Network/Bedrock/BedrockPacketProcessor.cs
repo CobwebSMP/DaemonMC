@@ -1,4 +1,6 @@
-﻿using System.Text;
+﻿using System.Drawing;
+using System.Text;
+using DaemonMC.Network.Handler;
 using DaemonMC.Network.RakNet;
 using DaemonMC.Utils;
 using DaemonMC.Utils.Text;
@@ -24,47 +26,7 @@ namespace DaemonMC.Network.Bedrock
 
         public static void Login(LoginPacket packet)
         {
-            byte[] jwtBuffer = Encoding.UTF8.GetBytes(packet.request);
-
-            var filteredJWT = new string(packet.request.Where(c => c >= 32 && c <= 126).ToArray());
-            int jsonEndIndex = filteredJWT.LastIndexOf('}');
-            if (jsonEndIndex >= 0)
-            {
-                filteredJWT = filteredJWT.Substring(0, jsonEndIndex + 1);
-            }
-            string Token = Encoding.UTF8.GetString(jwtBuffer, filteredJWT.Length + 8, jwtBuffer.Length - (filteredJWT.Length + 8));
-
-            JWT.processJWTchain(filteredJWT);
-            JWT.processJWTtoken(Token);
-
-            var encrypt = false;
-            if (encrypt)
-            {
-                var jwt = JWT.createJWT();
-                var pk = new ServerToClientHandshakePacket
-                {
-                    JWT = jwt,
-                };
-                ServerToClientHandshake.Encode(pk);
-            }
-            else
-            {
-                var pk = new PlayStatusPacket
-                {
-                    status = 0,
-                };
-                PlayStatus.Encode(pk);
-
-                var pk2 = new ResourcePacksInfoPacket
-                {
-                    force = false,
-                    isAddon = false,
-                    hasScripts = false,
-                    forceServerPacks = false
-
-                };
-                ResourcePacksInfo.Encode(pk2);
-            }
+            Handler.Login.execute(packet);
         }
 
         public static void PacketViolationWarning(PacketViolationWarningPacket packet)
@@ -77,6 +39,15 @@ namespace DaemonMC.Network.Bedrock
         {
             var player = RakSessionManager.getCurrentSession();
             Log.debug($"{player.username} ClientCacheStatus = {packet.status}");
+
+            var pk1 = new ResourcePacksInfoPacket
+            {
+                force = false,
+                isAddon = false,
+                hasScripts = false,
+                forceServerPacks = false
+            };
+            ResourcePacksInfo.Encode(pk1);
         }
 
         public static void ResourcePackClientResponse(ResourcePackClientResponsePacket packet)
@@ -92,19 +63,33 @@ namespace DaemonMC.Network.Bedrock
             }
             else if (packet.response == 4) //start game
             {
-                var session = RakSessionManager.getCurrentSession();
+                preSpawn.execute();
+            }
+        }
 
-                Player player = new Player();
-                player.username = session.username;
-
-                long EntityId = Server.AddPlayer(player);
-                session.EntityID = EntityId;
-
-                var pk1 = new DisconnectPacket
+        public static void RequestChunkRadius(RequestChunkRadiusPacket packet)
+        {
+            var player = RakSessionManager.getCurrentSession();
+            Log.debug($"{player.username} requested chunks with radius {packet.radius}. Max radius = {packet.maxRadius}");
+            var pk = new ChunkRadiusUpdatedPacket
+            {
+                radius = packet.radius,
+            };
+            ChunkRadiusUpdated.Encode(pk);
+            return;
+            for (int x = -20; x <= 20; x++)
+            {
+                for (int z = -20; z <= 20; z++)
                 {
-                    message = $"Yayy hi {RakSessionManager.sessions[Server.clientEp].username}. All works, your entity id is {EntityId}! That's all for now. Start game packets coming soon."
-                };
-                Disconnect.Encode(pk1);
+                    Log.debug($"({x}, {z})");
+                    var pk1 = new LevelChunkPacket
+                    {
+                        chunkX = x,
+                        chunkZ = z,
+                        data = ""
+                    };
+                    LevelChunk.Encode(pk1);
+                }
             }
         }
     }
