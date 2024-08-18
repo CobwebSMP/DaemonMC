@@ -1,9 +1,6 @@
-﻿using System;
-using System.Text;
+﻿using System.Text;
 using DaemonMC.Network;
 using fNbt;
-using Org.BouncyCastle.Utilities;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace DaemonMC
 {
@@ -38,6 +35,14 @@ namespace DaemonMC
         public static void WriteInt(int value)
         {
             byte[] bytes = BitConverter.GetBytes(value);
+            Array.Copy(bytes, 0, PacketEncoder.byteStream, PacketEncoder.writeOffset, 4);
+            PacketEncoder.writeOffset += 4;
+        }
+
+        public static void WriteIntBE(int value)
+        {
+            byte[] bytes = BitConverter.GetBytes(value);
+            Array.Reverse(bytes);
             Array.Copy(bytes, 0, PacketEncoder.byteStream, PacketEncoder.writeOffset, 4);
             PacketEncoder.writeOffset += 4;
         }

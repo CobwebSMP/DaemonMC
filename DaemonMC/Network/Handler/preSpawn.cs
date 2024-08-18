@@ -1,5 +1,6 @@
 ﻿using DaemonMC.Network.Bedrock;
 using DaemonMC.Network.RakNet;
+using DaemonMC.Utils.Text;
 using fNbt;
 
 namespace DaemonMC.Network.Handler
@@ -68,6 +69,7 @@ namespace DaemonMC.Network.Handler
                 status = 3,
             };
             PlayStatus.Encode(pk4);
+            Log.info($"{player.username} spawned");
         }
     }
 }

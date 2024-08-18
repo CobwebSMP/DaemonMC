@@ -16,7 +16,7 @@
         public static void Encode(PlayStatusPacket fields)
         {
             DataTypes.WriteVarInt(id);
-            DataTypes.WriteInt(fields.status);
+            DataTypes.WriteIntBE(fields.status);
             PacketEncoder.handlePacket("bedrock");
         }
     }

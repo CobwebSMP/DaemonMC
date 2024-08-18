@@ -16,7 +16,6 @@
                 radius = DataTypes.ReadVarInt(buffer),
                 maxRadius = DataTypes.ReadByte(buffer)
             };
-            DataTypes.ReadShort(buffer);
             BedrockPacketProcessor.RequestChunkRadius(packet);
         }
 
