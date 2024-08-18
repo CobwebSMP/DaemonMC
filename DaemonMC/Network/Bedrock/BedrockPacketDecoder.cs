@@ -41,6 +41,12 @@ namespace DaemonMC.Network.Bedrock
                 case MovePlayer.id:
                     MovePlayer.Decode(buffer);
                     break;
+                case ServerboundLoadingScreen.id:
+                    ServerboundLoadingScreen.Decode(buffer);
+                    break;
+                case Interact.id:
+                    Interact.Decode(buffer);
+                    break;
 
                 default:
                     Log.error($"[Server] Unknown Bedrock packet: {pkid}");

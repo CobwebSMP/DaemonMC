@@ -94,5 +94,15 @@ namespace DaemonMC.Network.Bedrock
         {
             //Log.debug($"{packet.actorRuntimeId} / {packet.position.X} : {packet.position.Y} : {packet.position.Z}");
         }
+
+        public static void ServerboundLoadingScreen(ServerboundLoadingScreenPacket packet)
+        {
+
+        }
+
+        public static void Interact(InteractPacket packet)
+        {
+            //Log.debug($"Action for {packet.actorRuntimeId} / {packet.action}");
+        }
     }
 }

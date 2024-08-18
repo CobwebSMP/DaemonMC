@@ -16,6 +16,7 @@
             ResourcePackClientResponse = 8,
             StartGame = 11,
             MovePlayer = 19,
+            Interact = 33,
             LevelChunkPacket = 58,
             RequestChunkRadius = 69,
             ChunkRadiusUpdated = 70,
@@ -25,6 +26,7 @@
             CreativeContent = 145,
             PacketViolationWarningPacket = 156,   //
             RequestNetworkSettings = 193,         //0x8F
+            ServerboundLoadingScreen = 312
         }
 
         public enum RakNet
