@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Numerics;
+using System.Text;
 using DaemonMC.Network;
 using fNbt;
 
@@ -59,6 +60,13 @@ namespace DaemonMC
             byte[] bytes = BitConverter.GetBytes(value);
             Array.Copy(bytes, 0, PacketEncoder.byteStream, PacketEncoder.writeOffset, 4);
             PacketEncoder.writeOffset += 4;
+        }
+
+        public static float ReadFloat(byte[] buffer)
+        {
+            float a = BitConverter.ToInt32(buffer, PacketDecoder.readOffset);
+            PacketDecoder.readOffset += 4;
+            return a;
         }
 
         public static int ReadIntBE(byte[] buffer)
@@ -367,6 +375,27 @@ namespace DaemonMC
             PacketEncoder.byteStream[PacketEncoder.writeOffset++] = (byte)(value & 0x7FUL);
         }
 
+        public static long ReadVarLong(byte[] data)
+        {
+            long value = 0;
+            int size = 0;
+
+            while (true)
+            {
+                byte currentByte = data[PacketDecoder.readOffset++];
+                value |= (long)(currentByte & 0x7F) << (size * 7);
+
+                if ((currentByte & 0x80) == 0)
+                {
+                    break;
+                }
+
+                size++;
+            }
+
+            return value;
+        }
+
         public static void WriteSignedVarLong(long value)
         {
             ulong zigzagEncoded = (ulong)((value << 1) ^ (value >> 63));
@@ -395,6 +424,40 @@ namespace DaemonMC
 
             WriteBytes(mostSignificantBits);
             WriteBytes(leastSignificantBits);
+        }
+
+        public static void WriteVec3(Vector3 vec)
+        {
+            WriteFloat(vec.X);
+            WriteFloat(vec.Y);
+            WriteFloat(vec.Z);
+        }
+
+        public static Vector3 ReadVec3(byte[] buffer)
+        {
+            var value = new Vector3()
+            {
+                X = ReadFloat(buffer),
+                Y = ReadFloat(buffer),
+                Z = ReadFloat(buffer)
+            };
+            return value;
+        }
+
+        public static void WriteVec2(Vector2 vec)
+        {
+            WriteFloat(vec.X);
+            WriteFloat(vec.Y);
+        }
+
+        public static Vector2 ReadVec2(byte[] buffer)
+        {
+            var value = new Vector2()
+            {
+                X = ReadFloat(buffer),
+                Y = ReadFloat(buffer)
+            };
+            return value;
         }
 
         public static void HexDump(byte[] buffer, int lenght)

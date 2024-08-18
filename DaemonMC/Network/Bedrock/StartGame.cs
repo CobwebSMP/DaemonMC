@@ -1,4 +1,4 @@
-﻿using DaemonMC.Utils.Text;
+﻿using System.Numerics;
 
 namespace DaemonMC.Network.Bedrock
 {
@@ -6,11 +6,8 @@ namespace DaemonMC.Network.Bedrock
     {
         public long EntityId { get; set; }
         public int GameMode { get; set; }
-        public float x { get; set; }
-        public float y { get; set; }
-        public float z { get; set; }
-        public float rotX { get; set; }
-        public float rotY { get; set; }
+        public Vector3 position { get; set; }
+        public Vector2 rotation { get; set; }
         public long seed { get; set; }
         public ushort biomeType { get; set; } = 0;
         public string biomeName { get; set; } = "plains";
@@ -39,13 +36,10 @@ namespace DaemonMC.Network.Bedrock
             DataTypes.WriteSignedVarLong(fields.EntityId);
             DataTypes.WriteVarLong((ulong)fields.EntityId);
             DataTypes.WriteVarInt(fields.GameMode);
-            DataTypes.WriteFloat(fields.x);
-            DataTypes.WriteFloat(fields.y);
-            DataTypes.WriteFloat(fields.z);
-            DataTypes.WriteFloat(fields.rotX);
-            DataTypes.WriteFloat(fields.rotY);
-                //Level settings
-                DataTypes.WriteLongLE(fields.seed);
+            DataTypes.WriteVec3(fields.position);
+            DataTypes.WriteVec2(fields.rotation);
+            //Level settings
+            DataTypes.WriteLongLE(fields.seed);
                     //Spawn settings
                     DataTypes.WriteShort(fields.biomeType);
                     DataTypes.WriteString(fields.biomeName);

@@ -21,24 +21,11 @@ namespace DaemonMC.Network.Handler
             JWT.processJWTchain(filteredJWT);
             JWT.processJWTtoken(Token);
 
-            var encrypt = false;
-            if (encrypt)
+            var pk = new PlayStatusPacket
             {
-                var jwt = JWT.createJWT();
-                var pk = new ServerToClientHandshakePacket
-                {
-                    JWT = jwt,
-                };
-                ServerToClientHandshake.Encode(pk);
-            }
-            else
-            {
-                var pk = new PlayStatusPacket
-                {
-                    status = 0,
-                };
-                PlayStatus.Encode(pk);
-            }
+                status = 0,
+            };
+            PlayStatus.Encode(pk);
         }
     }
 }

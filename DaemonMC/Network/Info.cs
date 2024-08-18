@@ -15,6 +15,7 @@
             ResourcePackStack = 7,
             ResourcePackClientResponse = 8,
             StartGame = 11,
+            MovePlayer = 19,
             LevelChunkPacket = 58,
             RequestChunkRadius = 69,
             ChunkRadiusUpdated = 70,

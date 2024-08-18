@@ -1,4 +1,5 @@
-﻿using DaemonMC.Network.Bedrock;
+﻿using System.Numerics;
+using DaemonMC.Network.Bedrock;
 using DaemonMC.Network.RakNet;
 using DaemonMC.Utils.Text;
 using fNbt;
@@ -22,11 +23,8 @@ namespace DaemonMC.Network.Handler
                 EntityId = EntityId,
                 gameType = 0,
                 GameMode = 2,
-                x = 0,
-                y = 1,
-                z = 0,
-                rotX = 0,
-                rotY = 0,
+                position = new Vector3(0, 1, 0),
+                rotation = new Vector2(0, 0),
                 spawnBlockX = 0,
                 spawnBlockY = 0,
                 spawnBlockZ = 0,
@@ -69,7 +67,7 @@ namespace DaemonMC.Network.Handler
                 status = 3,
             };
             PlayStatus.Encode(pk4);
-            Log.info($"{player.username} spawned");
+            Log.info($"{player.username} spawned at X:{pk1.position.X} Y:{pk1.position.Y} Z:{pk1.position.Z}");
         }
     }
 }

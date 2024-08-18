@@ -89,5 +89,10 @@ namespace DaemonMC.Network.Bedrock
                 }
             }
         }
+
+        public static void MovePlayer(MovePlayerPacket packet)
+        {
+            //Log.debug($"{packet.actorRuntimeId} / {packet.position.X} : {packet.position.Y} : {packet.position.Z}");
+        }
     }
 }
