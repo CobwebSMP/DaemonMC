@@ -11,14 +11,13 @@ namespace DaemonMC.Network
 
         public static Dictionary<uint, byte[]> sentPackets = new Dictionary<uint, byte[]>();
 
-        public static void handlePacket(string type = "")
+        public static void handlePacket(string type = "bedrock")
         {
             byte[] trimmedBuffer = new byte[writeOffset];
             Array.Copy(byteStream, trimmedBuffer, writeOffset);
-            if (type == "") { Log.debug($"[Server] --> [{Server.clientEp.Address,-16}:{Server.clientEp.Port}] {(Info.RakNet)trimmedBuffer[0]}"); };
-            if (type == "bedrock") { PacketDecoder.readOffset = 0; Log.debug($"[Server] --> [{Server.clientEp.Address,-16}:{Server.clientEp.Port}] {(Info.Bedrock)DataTypes.ReadVarInt(trimmedBuffer)}"); };
             if (type == "bedrock")
             {
+                PacketDecoder.readOffset = 0; Log.debug($"[Server] --> [{Server.clientEp.Address,-16}:{Server.clientEp.Port}] {(Info.Bedrock)DataTypes.ReadVarInt(trimmedBuffer)}");
                 byte[] bedrockId = new byte[] { 254 };
 
                 if (RakSessionManager.getSession(Server.clientEp) != null)
@@ -45,8 +44,12 @@ namespace DaemonMC.Network
                 Reliability.ReliabilityHandler(newtrimmedBuffer);
                 return;
             }
+
+            Log.debug($"[Server] --> [{Server.clientEp.Address,-16}:{Server.clientEp.Port}] {(Info.RakNet)trimmedBuffer[0]}");
+
             writeOffset = 0;
             byteStream = new byte[1024];
+
             if (trimmedBuffer[0] == 3)
             {
                 Reliability.ReliabilityHandler(trimmedBuffer, 0, false);

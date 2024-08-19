@@ -20,7 +20,7 @@
             BedrockPacketProcessor.Interact(packet);
         }
 
-        public static void Encode(PacketViolationWarningPacket fields)
+        public static void Encode(InteractPacket fields)
         {
 
         }

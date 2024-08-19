@@ -8,7 +8,7 @@
 
     public class RequestChunkRadius
     {
-        public const byte id = 69;
+        public const int id = 69;
         public static void Decode(byte[] buffer)
         {
             var packet = new RequestChunkRadiusPacket
@@ -19,7 +19,7 @@
             BedrockPacketProcessor.RequestChunkRadius(packet);
         }
 
-        public static void Encode(LoginPacket fields)
+        public static void Encode(RequestChunkRadiusPacket fields)
         {
 
         }

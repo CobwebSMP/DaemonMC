@@ -1,22 +1,21 @@
 ﻿namespace DaemonMC.Network.Bedrock
 {
-    public class CreativeContentPacket
+    public class ExamplePacket
     {
-
+        public int variable { get; set; }
     }
 
-    public class CreativeContent
+    public class Example
     {
-        public static int id = 145;
+        public static int id = 0;
         public static void Decode(byte[] buffer)
         {
 
         }
 
-        public static void Encode(CreativeContentPacket fields)
+        public static void Encode(ExamplePacket fields)
         {
             DataTypes.WriteVarInt(id);
-            DataTypes.WriteVarInt(0);
             PacketEncoder.handlePacket();
         }
     }

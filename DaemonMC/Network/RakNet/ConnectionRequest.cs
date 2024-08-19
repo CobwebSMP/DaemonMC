@@ -28,7 +28,7 @@
             DataTypes.WriteLong(fields.GUID);
             DataTypes.WriteLongLE(fields.Time);
             DataTypes.WriteByte(fields.Security);
-            PacketEncoder.handlePacket();
+            PacketEncoder.handlePacket("raknet");
         }
     }
 }

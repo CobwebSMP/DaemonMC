@@ -10,7 +10,7 @@ namespace DaemonMC.Network.Bedrock
 
     public class Disconnect
     {
-        public static byte id = 5;
+        public static int id = 5;
         public static void Decode(byte[] buffer)
         {
 
@@ -23,7 +23,7 @@ namespace DaemonMC.Network.Bedrock
             DataTypes.WriteBool(false);
             DataTypes.WriteString(fields.message);
             DataTypes.WriteString("");
-            PacketEncoder.handlePacket("bedrock");
+            PacketEncoder.handlePacket();
         }
     }
 }

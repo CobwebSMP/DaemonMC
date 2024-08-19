@@ -8,7 +8,7 @@ namespace DaemonMC.Network.Bedrock
 
     public class ServerToClientHandshake
     {
-        public static byte id = 3;
+        public static int id = 3;
         public static void Decode(byte[] buffer)
         {
 
@@ -18,7 +18,7 @@ namespace DaemonMC.Network.Bedrock
         {
             DataTypes.WriteVarInt(id);
             DataTypes.WriteString(fields.JWT);
-            PacketEncoder.handlePacket("bedrock");
+            PacketEncoder.handlePacket();
         }
     }
 }

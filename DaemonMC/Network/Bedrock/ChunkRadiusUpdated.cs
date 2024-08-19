@@ -8,7 +8,7 @@ namespace DaemonMC.Network.Bedrock
 
     public class ChunkRadiusUpdated
     {
-        public static byte id = 70;
+        public static int id = 70;
         public static void Decode(byte[] buffer)
         {
 
@@ -18,7 +18,7 @@ namespace DaemonMC.Network.Bedrock
         {
             DataTypes.WriteVarInt(id);
             DataTypes.WriteVarInt(fields.radius);
-            PacketEncoder.handlePacket("bedrock");
+            PacketEncoder.handlePacket();
         }
     }
 }

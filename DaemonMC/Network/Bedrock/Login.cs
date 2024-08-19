@@ -8,7 +8,7 @@
 
     public class Login
     {
-        public const byte id = 1;
+        public const int id = 1;
         public static void Decode(byte[] buffer)
         {
             var packet = new LoginPacket

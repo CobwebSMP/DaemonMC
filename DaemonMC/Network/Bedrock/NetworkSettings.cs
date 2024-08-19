@@ -11,7 +11,7 @@
 
     public class NetworkSettings
     {
-        public static byte id = 143;
+        public static int id = 143;
         public static void Decode(byte[] buffer)
         {
 
@@ -25,7 +25,7 @@
             DataTypes.WriteBool(fields.clientThrottleEnabled);
             DataTypes.WriteByte(fields.clientThrottleThreshold);
             DataTypes.WriteFloat(fields.clientThrottleScalar);
-            PacketEncoder.handlePacket("bedrock");
+            PacketEncoder.handlePacket();
         }
     }
 }

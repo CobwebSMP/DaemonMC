@@ -10,7 +10,7 @@ namespace DaemonMC.Network.Bedrock
 
     public class LevelChunk
     {
-        public static byte id = 58;
+        public static int id = 58;
         public static void Decode(byte[] buffer)
         {
 
@@ -25,7 +25,7 @@ namespace DaemonMC.Network.Bedrock
             DataTypes.WriteVarInt(0);
             DataTypes.WriteBool(false);
             DataTypes.WriteString(fields.data);
-            PacketEncoder.handlePacket("bedrock");
+            PacketEncoder.handlePacket();
         }
     }
 }

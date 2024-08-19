@@ -7,7 +7,7 @@
 
     public class ClientCacheStatus
     {
-        public const byte id = 129;
+        public const int id = 129;
         public static void Decode(byte[] buffer)
         {
             var packet = new ClientCacheStatusPacket
@@ -18,7 +18,7 @@
             BedrockPacketProcessor.ClientCacheStatus(packet);
         }
 
-        public static void Encode(PacketViolationWarningPacket fields)
+        public static void Encode(ClientCacheStatusPacket fields)
         {
 
         }

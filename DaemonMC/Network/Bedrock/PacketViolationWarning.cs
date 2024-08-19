@@ -10,7 +10,7 @@
 
     public class PacketViolationWarning
     {
-        public const byte id = 156;
+        public const int id = 156;
         public static void Decode(byte[] buffer)
         {
             var packet = new PacketViolationWarningPacket

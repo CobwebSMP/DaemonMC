@@ -20,7 +20,7 @@
             BedrockPacketProcessor.ServerboundLoadingScreen(packet);
         }
 
-        public static void Encode(PacketViolationWarningPacket fields)
+        public static void Encode(ServerboundLoadingScreenPacket fields)
         {
 
         }

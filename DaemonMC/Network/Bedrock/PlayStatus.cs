@@ -7,7 +7,7 @@
 
     public class PlayStatus
     {
-        public static byte id = 2;
+        public static int id = 2;
         public static void Decode(byte[] buffer)
         {
 
@@ -17,7 +17,7 @@
         {
             DataTypes.WriteVarInt(id);
             DataTypes.WriteIntBE(fields.status);
-            PacketEncoder.handlePacket("bedrock");
+            PacketEncoder.handlePacket();
         }
     }
 }

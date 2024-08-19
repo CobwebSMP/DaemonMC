@@ -7,7 +7,7 @@
 
     public class ResourcePackClientResponse
     {
-        public const byte id = 8;
+        public const int id = 8;
         public static void Decode(byte[] buffer)
         {
             var packet = new ResourcePackClientResponsePacket
@@ -18,7 +18,7 @@
             BedrockPacketProcessor.ResourcePackClientResponse(packet);
         }
 
-        public static void Encode(LoginPacket fields)
+        public static void Encode(ResourcePackClientResponsePacket fields)
         {
 
         }

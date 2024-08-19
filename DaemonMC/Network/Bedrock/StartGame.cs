@@ -24,7 +24,7 @@ namespace DaemonMC.Network.Bedrock
 
     public class StartGame
     {
-        public static byte id = 11;
+        public static int id = 11;
         public static void Decode(byte[] buffer)
         {
 
@@ -122,7 +122,7 @@ namespace DaemonMC.Network.Bedrock
             DataTypes.WriteBool(true);
             DataTypes.WriteBool(false);
             DataTypes.WriteBool(true);
-            PacketEncoder.handlePacket("bedrock");
+            PacketEncoder.handlePacket();
         }
     }
 }

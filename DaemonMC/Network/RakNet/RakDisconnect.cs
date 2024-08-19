@@ -19,7 +19,7 @@
         public static void Encode(RakDisconnectPacket fields)
         {
             DataTypes.WriteByte(id);
-            PacketEncoder.handlePacket();
+            PacketEncoder.handlePacket("raknet");
         }
     }
 }

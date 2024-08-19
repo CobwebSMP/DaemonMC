@@ -12,7 +12,7 @@
 
     public class ResourcePacksInfo
     {
-        public static byte id = 6;
+        public static int id = 6;
         public static void Decode(byte[] buffer)
         {
 
@@ -28,7 +28,7 @@
             DataTypes.WriteShort(0);
             DataTypes.WriteShort(0);
             DataTypes.WriteVarInt(0);
-            PacketEncoder.handlePacket("bedrock");
+            PacketEncoder.handlePacket();
         }
     }
 }

@@ -8,7 +8,7 @@ namespace DaemonMC.Network.Bedrock
 
     public class BiomeDefinitionList
     {
-        public static byte id = 122;
+        public static int id = 122;
         public static void Decode(byte[] buffer)
         {
 
@@ -18,7 +18,7 @@ namespace DaemonMC.Network.Bedrock
         {
             DataTypes.WriteVarInt(id);
             DataTypes.WriteCompoundTag(fields.biomeData);
-            PacketEncoder.handlePacket("bedrock");
+            PacketEncoder.handlePacket();
         }
     }
 }

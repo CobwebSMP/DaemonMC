@@ -16,7 +16,7 @@ namespace DaemonMC.Network.Bedrock
 
     public class MovePlayer
     {
-        public const byte id = 19;
+        public const int id = 19;
         public static void Decode(byte[] buffer)
         {
             var packet = new MovePlayerPacket

@@ -7,7 +7,7 @@
 
     public class ResourcePackStack
     {
-        public static byte id = 7;
+        public static int id = 7;
         public static void Decode(byte[] buffer)
         {
 
@@ -23,7 +23,7 @@
             DataTypes.WriteInt(0); //experiments
             DataTypes.WriteBool(false); //experiments was on
             DataTypes.WriteBool(false); //editor packs
-            PacketEncoder.handlePacket("bedrock");
+            PacketEncoder.handlePacket();
         }
     }
 }
